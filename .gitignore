@@ -1,0 +1,86 @@
+# Prerequisites
+*.d
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+*.smod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
+
+.deps
+.libs
+/aclocal.m4
+/autom4te.cache
+/compile
+/config.guess
+/config.log
+/config.status
+/config.sub
+/configure
+/depcomp
+/etc/m4/libtool.m4
+/etc/m4/ltoptions.m4
+/etc/m4/ltsugar.m4
+/etc/m4/ltversion.m4
+/etc/m4/lt~obsolete.m4
+/examples/Makefile.in
+/include/Makefile.in
+/install-sh
+/ltmain.sh
+/m4
+/missing
+Makefile
+Makefile.in
+examples/t
+libtool
+stamp-h1
+/tests/parser
+*.trs
+*.Tpo
+*.i
+/tests/comment
+/tests/skip
+/tests/eol
+/tests/lit
+/tests/lookahead
+/tests/name
+/tests/numeric_
+/tests/numeric
+/tests/ref
+/tests/string_
+/tests/xref
+/GPATH
+/GRTAGS
+/GTAGS
+/examples/v
+/include/ypdf/detail/_config.hh.ac~
+/tests/*.log
+/test-driver
+/tests/any
+/tests/obj
+/tests/ascii*put_test
+/examples/ypdf
