@@ -77,7 +77,7 @@ stamp-h1
 /GRTAGS
 /GTAGS
 /examples/v
-/include/ypdf/detail/_config.hh.ac~
+/include/ypdf/detail/_config.hh*
 /tests/*.log
 /test-driver
 /tests/any
