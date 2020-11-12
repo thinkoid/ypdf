@@ -5,6 +5,7 @@
 #define YPDF_PARSER_AST_XREF_HH
 
 #include <ypdf/detail/defs.hh>
+#include <ypdf/detail/overloaded.hh>
 
 #include <ypdf/parser/ast/ref.hh>
 
@@ -61,7 +62,15 @@ inline bool operator!=(const stream_xref_t &lhs, const stream_xref_t &rhs)
 }
 
 struct xref_t : boost::variant< free_xref_t, basic_xref_t, stream_xref_t >
-{ };
+{
+    const ref_t &ref() const {
+        return boost::apply_visitor(
+            detail::overloaded_{
+                [](const auto &arg) -> const ref_t & { return arg.ref; }
+            },
+            *this);
+    }
+};
 
 template< typename T >
 inline const T &as(const xref_t &arg)
