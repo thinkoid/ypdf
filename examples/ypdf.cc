@@ -88,7 +88,7 @@ template< typename Xs >
 void run_with(const options_t &opts, Xs &&xs)
 {
     for (const auto &x : xs) {
-        std::cout << x.ref << "\n";
+        std::cout << x.xref.ref() << "\n";
 
         const auto &arr = as< array_t >(x.obj);
         ASSERT(arr.size());

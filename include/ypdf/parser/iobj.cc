@@ -12,13 +12,13 @@ namespace ypdf::parser {
 template< typename Iterator >
 bool iobj(Iterator first, Iterator &iter, Iterator last, ast::iobj_t &attr)
 {
-    int num;
+    Iterator where = iter;
 
+    int num;
     if (int_(first, iter, last, num)) {
         skipws(first, iter, last);
 
         int gen = 0;
-
         if (int_(first, iter, last, gen)) {
             skipws(first, iter, last);
 
@@ -35,7 +35,10 @@ bool iobj(Iterator first, Iterator &iter, Iterator last, ast::iobj_t &attr)
                         lit(first, iter, last, "endobj");
 
                         attr = ast::iobj_t{
-                            { num, gen }, ast::obj_t(std::move(subobjs))
+                            ast::basic_xref_t{
+                                { num, gen },
+                                std::distance(first, where)
+                            }, ast::obj_t(std::move(subobjs))
                         };
 
                         return true;

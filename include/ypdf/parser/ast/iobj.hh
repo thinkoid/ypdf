@@ -13,7 +13,7 @@ namespace ypdf::parser::ast {
 
 struct iobj_t
 {
-    ref_t ref;
+    xref_t xref;
     obj_t obj;
 };
 

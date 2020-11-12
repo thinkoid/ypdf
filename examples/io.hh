@@ -86,7 +86,7 @@ inline std::ostream &operator<<(std::ostream &s, const dict_t &dict)
 
 inline std::ostream &operator<<(std::ostream &s, const iobj_t &iobj)
 {
-    return s << iobj.ref << " 0\n" << iobj.obj;
+    return s << iobj.xref.ref() << " 0\n" << iobj.obj;
 }
 
 } // namespace ypdf::parser::ast
