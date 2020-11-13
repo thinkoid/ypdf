@@ -7,7 +7,9 @@
 namespace ypdf::parser {
 
 template< typename Iterator >
-bool streambuf_(Iterator first, Iterator &iter, Iterator last, ast::stream_t& attr) {
+bool streambuf_(Iterator first, Iterator &iter, Iterator last,
+                ast::stream_t &attr)
+{
     ast::stream_t str;
 
     for (; iter != last; ++iter) {
@@ -28,7 +30,8 @@ bool streambuf_(Iterator first, Iterator &iter, Iterator last, ast::stream_t& at
 }
 
 template< typename Iterator >
-bool stream_(Iterator first, Iterator &iter, Iterator last, ast::stream_t& attr) {
+bool stream_(Iterator first, Iterator &iter, Iterator last, ast::stream_t &attr)
+{
     {
         // TODO: eval
         YPDF_ITERATOR_GUARD(iter);

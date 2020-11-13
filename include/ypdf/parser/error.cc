@@ -12,8 +12,7 @@ namespace ypdf::parser {
 namespace detail {
 
 template< typename Iterator >
-inline std::tuple< off_t, off_t >
-streampos(Iterator iter, Iterator last)
+inline std::tuple< off_t, off_t > streampos(Iterator iter, Iterator last)
 {
     off_t line = 0, col = 0;
 
@@ -21,8 +20,7 @@ streampos(Iterator iter, Iterator last)
         if ('\n' == *iter) {
             ++line;
             col = 0;
-        }
-        else {
+        } else {
             ++col;
         }
     }
@@ -31,36 +29,33 @@ streampos(Iterator iter, Iterator last)
 }
 
 template< typename Iterator, typename OutputIterator >
-inline void
-copy_escaped(Iterator iter, Iterator last, OutputIterator out)
+inline void copy_escaped(Iterator iter, Iterator last, OutputIterator out)
 {
-    char buf [8];
+    char buf[8];
 
     for (; iter != last; ++iter) {
         if (std::isprint(*iter)) {
-            buf [0] = *iter;
-            buf [1] = 0;
-        }
-        else {
-            sprintf(buf, "\\%03o",(unsigned char)*iter);
+            buf[0] = *iter;
+            buf[1] = 0;
+        } else {
+            sprintf(buf, "\\%03o", (unsigned char)*iter);
         }
 
-        if (buf [1]) {
-            *out++ = buf [0];
-            *out++ = buf [1];
-            *out++ = buf [2];
-            *out++ = buf [3];
-        }
-        else {
-            *out++ = buf [0];
+        if (buf[1]) {
+            *out++ = buf[0];
+            *out++ = buf[1];
+            *out++ = buf[2];
+            *out++ = buf[3];
+        } else {
+            *out++ = buf[0];
         }
     }
 }
 
 template< typename Iterator, typename OutputIterator >
-inline Iterator
-copy_cropped(Iterator iter, Iterator last, size_t nmax, int where,
-              OutputIterator out, const std::string& ellipsis = "[...]")
+inline Iterator copy_cropped(Iterator iter, Iterator last, size_t nmax, int where,
+                             OutputIterator     out,
+                             const std::string &ellipsis = "[...]")
 {
     ASSERT(nmax > ellipsis.size() + 2);
 
@@ -75,15 +70,13 @@ copy_cropped(Iterator iter, Iterator last, size_t nmax, int where,
             // Crop left
             //
             std::advance(right, n - nmax + ellipsis.size());
-        }
-        else if (0 == where) {
+        } else if (0 == where) {
             //
             // Crop middle
             //
-            std::advance(left,(nmax - ellipsis.size()) / 2);
-            std::advance(right, n -(nmax - ellipsis.size()) / 2);
-        }
-        else {
+            std::advance(left, (nmax - ellipsis.size()) / 2);
+            std::advance(right, n - (nmax - ellipsis.size()) / 2);
+        } else {
             //
             // Crop right
             //
@@ -94,8 +87,7 @@ copy_cropped(Iterator iter, Iterator last, size_t nmax, int where,
         copy_escaped(iter, left, out);
         copy_escaped(ellipsis.begin(), ellipsis.end(), out);
         copy_escaped(right, last, out);
-    }
-    else {
+    } else {
         copy_escaped(iter, last, out);
     }
 
@@ -106,23 +98,21 @@ copy_cropped(Iterator iter, Iterator last, size_t nmax, int where,
 
 template< typename Iterator >
 void expected(Iterator first, Iterator start, Iterator iter, Iterator last,
-               const std::string& what, std::ostream& out)
+              const std::string &what, std::ostream &out)
 {
     auto [line, col] = detail::streampos(first, iter);
 
     std::stringstream ss;
     ss.unsetf(std::ios_base::skipws);
 
-    detail::copy_cropped(
-        start, iter, 32UL, 0, std::ostream_iterator< char >(ss));
+    detail::copy_cropped(start, iter, 32UL, 0, std::ostream_iterator< char >(ss));
 
     const auto n = ss.tellp();
 
-    detail::copy_cropped(
-        iter, last, 32UL, 1, std::ostream_iterator< char >(ss));
+    detail::copy_cropped(iter, last, 32UL, 1, std::ostream_iterator< char >(ss));
 
-    out << "error:" << line << ":" << col
-        << ": parsing " << what << ":\n" << ss.rdbuf() << "\n"
+    out << "error:" << line << ":" << col << ": parsing " << what << ":\n"
+        << ss.rdbuf() << "\n"
         << std::string(n, '-') << '^' << std::endl;
 }
 

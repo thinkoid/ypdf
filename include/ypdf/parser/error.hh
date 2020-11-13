@@ -11,14 +11,14 @@
 namespace ypdf::parser {
 
 template< typename Iterator >
-void expected (Iterator, Iterator, Iterator, Iterator,
-               const std::string&, std::ostream& out = std::cerr);
+void expected(Iterator, Iterator, Iterator, Iterator, const std::string &,
+              std::ostream &out = std::cerr);
 
 template< typename Iterator >
-inline void
-expected (Iterator first, Iterator start, Iterator iter, Iterator last,
-          char what, std::ostream& out = std::cerr) {
-    return expected (first, start, iter, last, std::string (1U, what), out);
+inline void expected(Iterator first, Iterator start, Iterator iter, Iterator last,
+                     char what, std::ostream &out = std::cerr)
+{
+    return expected(first, start, iter, last, std::string(1U, what), out);
 }
 
 } // ypdf::parser

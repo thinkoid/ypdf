@@ -18,22 +18,19 @@ namespace ypdf::iostreams {
 
 struct ascii85_output_filter_t : public boost::iostreams::output_filter
 {
-    template< typename Sink >
-    bool put(Sink &dst, char c)
+    template< typename Sink > bool put(Sink &dst, char c)
     {
         return !eof_ && do_put(dst, c);
     }
 
-    template< typename Sink >
-    void close(Sink &dst)
+    template< typename Sink > void close(Sink &dst)
     {
         flush(dst);
         eof_ = true;
     }
 
 private:
-    template< typename Sink >
-    bool endl(Sink &dst)
+    template< typename Sink > bool endl(Sink &dst)
     {
         namespace bios = boost::iostreams;
         return n_ < 72 || (n_ = 0, 1 == bios::put(dst, '\n'));
@@ -46,8 +43,7 @@ private:
         return n_ += n, bios::write(dst, s, n);
     }
 
-    template< typename Sink >
-    std::streamsize write(Sink &dst, char c)
+    template< typename Sink > std::streamsize write(Sink &dst, char c)
     {
         namespace bios = boost::iostreams;
         return ++n_, bios::put(dst, c);
@@ -64,8 +60,7 @@ private:
         std::reverse(dst, dst + 5);
     }
 
-    template< typename Sink >
-    bool do_overflow(Sink &dst)
+    template< typename Sink > bool do_overflow(Sink &dst)
     {
         static int zero[] = { 0, 0, 0, 0 };
 
@@ -96,14 +91,12 @@ private:
         }
     }
 
-    template< typename Sink >
-    bool overflow(Sink &dst)
+    template< typename Sink > bool overflow(Sink &dst)
     {
         return do_overflow(dst) && endl(dst);
     }
 
-    template< typename Sink >
-    bool do_put(Sink &dst, char c)
+    template< typename Sink > bool do_put(Sink &dst, char c)
     {
         if (i_ < 4 || overflow(dst))
             return b_[i_++] = c, true;
@@ -111,8 +104,7 @@ private:
         return false;
     }
 
-    template< typename Sink >
-    void flush(Sink &dst)
+    template< typename Sink > void flush(Sink &dst)
     {
         if (i_) {
             std::fill(b_ + i_, b_ + 4, 0);
@@ -121,7 +113,7 @@ private:
     }
 
 private:
-    int i_ = 0, n_ = 0;
+    int  i_ = 0, n_ = 0;
     char b_[4] = { 0 }, c_[5];
     bool eof_ = false;
 };

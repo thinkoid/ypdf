@@ -9,16 +9,16 @@
 
 namespace ypdf::parser {
 
-template< typename Iterator >
-bool comment (Iterator, Iterator &, Iterator);
+template< typename Iterator > bool comment(Iterator, Iterator &, Iterator);
 
 template< typename Iterator >
-inline bool eof (Iterator first, Iterator &iter, Iterator last) {
-    return lit (first, iter, last, "%%EOF");
+inline bool eof(Iterator first, Iterator &iter, Iterator last)
+{
+    return lit(first, iter, last, "%%EOF");
 }
 
 template< typename Iterator >
-bool version (Iterator, Iterator &, Iterator, std::tuple< int, int >&);
+bool version(Iterator, Iterator &, Iterator, std::tuple< int, int > &);
 
 } // ypdf::parser
 

@@ -9,10 +9,9 @@
 namespace ypdf::parser {
 
 template< typename Iterator >
-bool lit (Iterator, Iterator &, Iterator, const std::string&);
+bool lit(Iterator, Iterator &, Iterator, const std::string &);
 
-template< typename Iterator >
-bool lit (Iterator, Iterator &, Iterator, char);
+template< typename Iterator > bool lit(Iterator, Iterator &, Iterator, char);
 
 } // ypdf::parser
 

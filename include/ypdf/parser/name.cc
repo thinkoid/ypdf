@@ -6,7 +6,8 @@
 namespace ypdf::parser {
 
 template< typename Iterator >
-bool name(Iterator first, Iterator &iter, Iterator last, ast::name_t& attr) {
+bool name(Iterator first, Iterator &iter, Iterator last, ast::name_t &attr)
+{
     if (iter != last && *iter == '/') {
         std::stringstream ss;
         ss << *iter;
@@ -24,11 +25,9 @@ bool name(Iterator first, Iterator &iter, Iterator last, ast::name_t& attr) {
                     return false;
 
                 ss << *iter;
-            }
-            else if (is_regular(*iter)) {
+            } else if (is_regular(*iter)) {
                 ss << *iter;
-            }
-            else {
+            } else {
                 break;
             }
         }

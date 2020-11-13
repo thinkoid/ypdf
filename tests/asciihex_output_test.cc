@@ -48,7 +48,7 @@ BOOST_DATA_TEST_CASE(
 
     BOOST_TEST(result == buf);
 
-    BOOST_TEST(str.bad()  == bad);
+    BOOST_TEST(str.bad() == bad);
     BOOST_TEST(str.fail() == fail);
 }
 

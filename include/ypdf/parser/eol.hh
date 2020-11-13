@@ -8,8 +8,7 @@
 
 namespace ypdf::parser {
 
-template< typename Iterator >
-bool eol (Iterator, Iterator &, Iterator);
+template< typename Iterator > bool eol(Iterator, Iterator &, Iterator);
 
 } // ypdf::parser
 

@@ -14,7 +14,7 @@ namespace ypdf::parser::ast {
 struct iobj_t
 {
     xref_t xref;
-    obj_t obj;
+    obj_t  obj;
 };
 
 } // namespace ypdf::parser::ast

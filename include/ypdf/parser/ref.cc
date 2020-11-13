@@ -8,8 +8,8 @@
 namespace ypdf::parser {
 
 template< typename Iterator >
-bool ref(Iterator first, Iterator &iter, Iterator last,
-          ast::ref_t& attr) {
+bool ref(Iterator first, Iterator &iter, Iterator last, ast::ref_t &attr)
+{
     int a = 0, b = 0;
 
     if (int_(first, iter, last, a) && skipws(first, iter, last) &&

@@ -19,9 +19,8 @@
 
 namespace ypdf::parser::ast {
 
-using obj_base_t = boost::variant<
-    null_t, bool, int, double, ref_t, string_t, name_t, array_t, dict_t,
-    stream_t >;
+using obj_base_t = boost::variant< null_t, bool, int, double, ref_t, string_t,
+                                   name_t, array_t, dict_t, stream_t >;
 
 struct obj_t : obj_base_t
 {
@@ -36,14 +35,12 @@ struct obj_t : obj_base_t
     const obj_t &at(const name_t &) const;
 };
 
-template< typename T >
-inline const T &as(const obj_t &arg)
+template< typename T > inline const T &as(const obj_t &arg)
 {
     return boost::get< T >(arg);
 }
 
-template< typename T >
-inline bool is(const obj_t &arg)
+template< typename T > inline bool is(const obj_t &arg)
 {
     return typeid(T) == arg.type();
 }

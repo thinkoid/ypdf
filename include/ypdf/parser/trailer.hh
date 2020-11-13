@@ -11,7 +11,7 @@
 namespace ypdf::parser {
 
 template< typename Iterator >
-bool trailer (Iterator, Iterator &, Iterator, ast::dict_t&);
+bool trailer(Iterator, Iterator &, Iterator, ast::dict_t &);
 
 } // ypdf::parser
 

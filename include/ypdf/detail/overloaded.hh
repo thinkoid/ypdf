@@ -5,7 +5,10 @@
 
 namespace ypdf::detail {
 
-template< typename... Ts > struct overloaded_ : Ts... { using Ts::operator()...; };
+template< typename... Ts > struct overloaded_ : Ts...
+{
+    using Ts::operator()...;
+};
 template< typename... Ts > overloaded_(Ts...) -> overloaded_< Ts... >;
 
 } // namespace ypdf::detail

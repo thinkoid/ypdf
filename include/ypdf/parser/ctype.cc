@@ -5,8 +5,8 @@
 
 namespace ypdf::parser {
 
-static const char ctype [256] = {
-//  0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
+static const char ctype[256] = {
+    //  0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
     2, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 0, 2, 2, 0, 0, // 0
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 1
     2, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, // 2
@@ -14,11 +14,12 @@ static const char ctype [256] = {
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 4
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, // 5
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 6
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0  // 7
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0 // 7
 };
 
-int ctype_of(char c) {
-    return ctype [(unsigned char)c];
+int ctype_of(char c)
+{
+    return ctype[(unsigned char)c];
 }
 
 }

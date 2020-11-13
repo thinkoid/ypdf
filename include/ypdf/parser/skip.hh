@@ -8,13 +8,12 @@
 
 namespace ypdf::parser {
 
-template< typename Iterator >
-bool skipws (Iterator, Iterator &, Iterator);
+template< typename Iterator > bool skipws(Iterator, Iterator &, Iterator);
 
 } // ypdf::parser
 
 #include <ypdf/parser/skip.cc>
 
-#define SKIP skipws (first, iter, last)
+#define SKIP skipws(first, iter, last)
 
 #endif // YPDF_PARSER_SKIP_HH

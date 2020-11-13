@@ -8,7 +8,7 @@
 namespace ypdf::parser {
 
 template< typename Iterator >
-bool trailer(Iterator first, Iterator &iter, Iterator last, ast::dict_t& attr)
+bool trailer(Iterator first, Iterator &iter, Iterator last, ast::dict_t &attr)
 {
     if (!lit(first, iter, last, "trailer"))
         return false;

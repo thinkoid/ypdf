@@ -5,6 +5,6 @@
 
 namespace ypdf::parser {
 
-int ctype_of (char);
+int ctype_of(char);
 
 } // namespace ypdf

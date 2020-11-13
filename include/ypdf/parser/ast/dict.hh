@@ -24,16 +24,12 @@ struct dict_t : std::vector< std::tuple< name_t, obj_t > >
 
     using base_type::operator[];
 
-    iterator find(const char *);
+    iterator       find(const char *);
     const_iterator find(const char *) const;
 
-    iterator find(const name_t &k) {
-        return find(k.c_str());
-    }
+    iterator find(const name_t &k) { return find(k.c_str()); }
 
-    const_iterator find(const name_t &k) const {
-        return find(k.c_str());
-    }
+    const_iterator find(const name_t &k) const { return find(k.c_str()); }
 
     bool has(const char *) const;
     bool has(const name_t &) const;
@@ -41,19 +37,18 @@ struct dict_t : std::vector< std::tuple< name_t, obj_t > >
     obj_t &operator[](name_t &&);
     obj_t &operator[](const name_t &);
 
-    obj_t &at(const name_t &);
+    obj_t &      at(const name_t &);
     const obj_t &at(const name_t &) const;
 
-    template< typename... Ts >
-    void emplace_back(Ts&&...);
+    template< typename... Ts > void emplace_back(Ts &&...);
 
-    template< typename... Ts >
-    void emplace_back(const std::string &k, Ts&&... v) {
+    template< typename... Ts > void emplace_back(const std::string &k, Ts &&...v)
+    {
         emplace_back(name_t(k), v...);
     }
 
-    template< typename... Ts >
-    void emplace_back(std::string &&k, Ts&&... v) {
+    template< typename... Ts > void emplace_back(std::string &&k, Ts &&...v)
+    {
         emplace_back(name_t(std::move(k)), v...);
     }
 };

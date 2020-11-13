@@ -14,8 +14,7 @@ namespace iostreams {
 
 struct asciihex_input_filter_t : public boost::iostreams::input_filter
 {
-    template< typename Source >
-    int get(Source& src)
+    template< typename Source > int get(Source &src)
     {
         if (eof_)
             return EOF;
@@ -23,7 +22,8 @@ struct asciihex_input_filter_t : public boost::iostreams::input_filter
         namespace bios = boost::iostreams;
 
         int c;
-        while (EOF != (c = bios::get(src)) && std::isspace(c)) ;
+        while (EOF != (c = bios::get(src)) && std::isspace(c))
+            ;
 
         int result = 0;
 
@@ -35,16 +35,33 @@ struct asciihex_input_filter_t : public boost::iostreams::input_filter
         case '0':
             break;
 
-        case '1': case '2': case '3': case '4':
-        case '5': case '6': case '7': case '8': case '9':
+        case '1':
+        case '2':
+        case '3':
+        case '4':
+        case '5':
+        case '6':
+        case '7':
+        case '8':
+        case '9':
             result = ((unsigned)(c - '0') & 0x0F) << 4;
             break;
 
-        case 'a': case 'b': case 'c': case 'd': case 'e': case 'f':
+        case 'a':
+        case 'b':
+        case 'c':
+        case 'd':
+        case 'e':
+        case 'f':
             result = ((unsigned)(c - 'a' + 10) & 0x0F) << 4;
             break;
 
-        case 'A': case 'B': case 'C': case 'D': case 'E': case 'F':
+        case 'A':
+        case 'B':
+        case 'C':
+        case 'D':
+        case 'E':
+        case 'F':
             result = ((unsigned)(c - 'A' + 10) & 0x0F) << 4;
             break;
 
@@ -55,22 +72,41 @@ struct asciihex_input_filter_t : public boost::iostreams::input_filter
             throw std::ios_base::failure("ASCIIHex : invalid character");
         }
 
-        while (EOF != (c = bios::get(src)) && std::isspace(c)) ;
+        while (EOF != (c = bios::get(src)) && std::isspace(c))
+            ;
 
         switch (c) {
-        case '>': case '0':
+        case '>':
+        case '0':
             break;
 
-        case '1': case '2': case '3': case '4':
-        case '5': case '6': case '7': case '8': case '9':
+        case '1':
+        case '2':
+        case '3':
+        case '4':
+        case '5':
+        case '6':
+        case '7':
+        case '8':
+        case '9':
             result |= (unsigned)(c - '0') & 0x0F;
             break;
 
-        case 'a': case 'b': case 'c': case 'd': case 'e': case 'f':
+        case 'a':
+        case 'b':
+        case 'c':
+        case 'd':
+        case 'e':
+        case 'f':
             result |= (unsigned)(c - 'a' + 10) & 0x0F;
             break;
 
-        case 'A': case 'B': case 'C': case 'D': case 'E': case 'F':
+        case 'A':
+        case 'B':
+        case 'C':
+        case 'D':
+        case 'E':
+        case 'F':
             result |= (unsigned)(c - 'A' + 10) & 0x0F;
             break;
 
@@ -84,11 +120,7 @@ struct asciihex_input_filter_t : public boost::iostreams::input_filter
         return result;
     }
 
-    template< typename Source >
-    void close(Source&)
-    {
-        eof_ = false;
-    }
+    template< typename Source > void close(Source &) { eof_ = false; }
 
 private:
     bool eof_ = false;

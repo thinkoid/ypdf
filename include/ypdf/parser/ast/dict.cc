@@ -4,8 +4,7 @@
 
 namespace ypdf::parser::ast {
 
-template< typename... Ts >
-void dict_t::emplace_back(Ts&&... args)
+template< typename... Ts > void dict_t::emplace_back(Ts &&...args)
 {
     base_type::emplace_back(std::forward< Ts >(args)...);
 }

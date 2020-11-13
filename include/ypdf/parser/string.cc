@@ -7,7 +7,8 @@ namespace ypdf::parser {
 
 template< typename Iterator >
 bool parenthesized_string(Iterator first, Iterator &iter, Iterator last,
-                           ast::string_t& attr) {
+                          ast::string_t &attr)
+{
     if (*iter != '(') {
         return false;
     }
@@ -15,7 +16,7 @@ bool parenthesized_string(Iterator first, Iterator &iter, Iterator last,
     ast::string_t s(1U, *iter++);
 
     for (; iter != last;) {
-        switch(*iter) {
+        switch (*iter) {
         case '(': {
             ast::string_t tmp;
 
@@ -23,8 +24,7 @@ bool parenthesized_string(Iterator first, Iterator &iter, Iterator last,
                 return false;
 
             s += tmp;
-        }
-            break;
+        } break;
 
         case ')':
             s += *iter++;
@@ -36,13 +36,15 @@ bool parenthesized_string(Iterator first, Iterator &iter, Iterator last,
             if (++iter == last)
                 return false;
 
-            switch(*iter) {
+            switch (*iter) {
             case 'n':
             case 'r':
             case 't':
             case 'b':
             case 'f':
-            case '\\': case '(': case ')':
+            case '\\':
+            case '(':
+            case ')':
                 s += *iter++;
                 break;
 
@@ -81,8 +83,7 @@ bool parenthesized_string(Iterator first, Iterator &iter, Iterator last,
 
                 break;
             }
-        }
-            break;
+        } break;
 
         default:
             s += *iter++;
@@ -94,8 +95,8 @@ bool parenthesized_string(Iterator first, Iterator &iter, Iterator last,
 }
 
 template< typename Iterator >
-bool angular_string(Iterator, Iterator &iter, Iterator last,
-                     ast::string_t& attr) {
+bool angular_string(Iterator, Iterator &iter, Iterator last, ast::string_t &attr)
+{
     assert(*iter == '<');
     ast::string_t s(1U, *iter++);
 
@@ -104,16 +105,14 @@ bool angular_string(Iterator, Iterator &iter, Iterator last,
 
         if (std::isxdigit(c)) {
             s += c;
-        }
-        else if (c == '>') {
+        } else if (c == '>') {
             ++iter;
 
             s += c;
             attr = std::move(s);
 
             return true;
-        }
-        else
+        } else
             return false;
     }
 
@@ -121,12 +120,12 @@ bool angular_string(Iterator, Iterator &iter, Iterator last,
 }
 
 template< typename Iterator >
-bool string_(Iterator first, Iterator &iter, Iterator last,
-             ast::string_t& attr) {
+bool string_(Iterator first, Iterator &iter, Iterator last, ast::string_t &attr)
+{
     if (iter != last) {
         const int c = *iter;
 
-        switch(c) {
+        switch (c) {
         case '(':
             return parenthesized_string(first, iter, last, attr);
 

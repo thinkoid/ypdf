@@ -15,7 +15,7 @@ bool parse(Iterator first, Iterator &iter, Iterator last,
 {
     using namespace parser;
 
-    auto start = iter;
+    auto  start = iter;
     off_t off;
 
     if (!rstartxref(first, iter, last, off)) {
@@ -108,7 +108,7 @@ bool parse(Iterator first, Iterator &iter, Iterator last,
                 expected(first, start, iter, last, "anything but this");
                 return false;
             }
-        break;
+            break;
         }
     }
 

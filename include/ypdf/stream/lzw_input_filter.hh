@@ -11,13 +11,15 @@
 
 namespace ypdf::iostreams {
 
-struct lzw_input_filter_t
-    : ::boost::iostreams::input_filter, lzw_filter_base_t
+struct lzw_input_filter_t : ::boost::iostreams::input_filter, lzw_filter_base_t
 {
-    explicit lzw_input_filter_t() : table(make_table()) { }
+    explicit lzw_input_filter_t()
+        : table(make_table())
+    {
+    }
 
-    template< typename Source >
-    int get(Source &src) {
+    template< typename Source > int get(Source &src)
+    {
         if (eof)
             return EOF;
 
@@ -46,8 +48,7 @@ struct lzw_input_filter_t
 
                 cur = &iter->second;
                 pos = 0;
-            }
-                break;
+            } break;
             }
 
             if (bits < max_bits && (1UL << bits) - 1 <= next)
@@ -70,13 +71,11 @@ struct lzw_input_filter_t
         return c;
     }
 
-    template< typename Source >
-    void close(Source &) {
-        eof = true;
-    }
+    template< typename Source > void close(Source &) { eof = true; }
 
 private:
-    static std::map< size_t, std::string > make_table() {
+    static std::map< size_t, std::string > make_table()
+    {
         std::map< size_t, std::string > table;
 
         for (size_t i = 0; i < 256; ++i)
@@ -85,8 +84,8 @@ private:
         return table;
     }
 
-    template< typename Source >
-    size_t do_get(Source &src) {
+    template< typename Source > size_t do_get(Source &src)
+    {
         namespace bios = ::boost::iostreams;
 
         for (int c; pending < bits; pending += 8) {
@@ -108,10 +107,10 @@ private:
     std::map< size_t, std::string > table;
 
     std::string *cur = 0, *prev = 0;
-    std::size_t pos = 0;
+    std::size_t  pos = 0;
 
     size_t buf = 0, bits = min_bits, pending = 0, next = first_code;
-    bool eof = false;
+    bool   eof = false;
 };
 
 } // namespace ypdf::iostreams

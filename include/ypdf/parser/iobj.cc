@@ -34,16 +34,13 @@ bool iobj(Iterator first, Iterator &iter, Iterator last, ast::iobj_t &attr)
                     if (lookahead(iter, last, "endobj")) {
                         lit(first, iter, last, "endobj");
 
-                        attr = ast::iobj_t{
-                            ast::basic_xref_t{
-                                { num, gen },
-                                std::distance(first, where)
-                            }, ast::obj_t(std::move(subobjs))
-                        };
+                        attr = ast::iobj_t{ ast::basic_xref_t{
+                                                { num, gen },
+                                                std::distance(first, where) },
+                                            ast::obj_t(std::move(subobjs)) };
 
                         return true;
-                    }
-                    else {
+                    } else {
                         ast::obj_t subobj;
 
                         if (!obj(first, iter, last, subobj))
@@ -63,4 +60,3 @@ bool iobj(Iterator first, Iterator &iter, Iterator last, ast::iobj_t &attr)
 }
 
 } // ypdf::parser
-

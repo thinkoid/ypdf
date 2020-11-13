@@ -70,7 +70,7 @@ BOOST_DATA_TEST_CASE(
 
         io::close(str);
 
-        BOOST_TEST(str.bad()  == bad);
+        BOOST_TEST(str.bad() == bad);
         BOOST_TEST(str.fail() == fail);
     }
 

@@ -29,18 +29,16 @@ bool xref(Iterator first, Iterator &iter, Iterator last, int num,
     if (*iter == 'f') {
         attr = ast::xref_t(ast::free_xref_t{ num, gen });
         return ++iter, true;
-    }
-    else if (*iter == 'n') {
+    } else if (*iter == 'n') {
         attr = ast::xref_t(ast::basic_xref_t{ { num, gen }, off });
         return ++iter, true;
-    }
-    else
+    } else
         return false;
 }
 
 template< typename Iterator >
-bool xrefs(Iterator first, Iterator &iter, Iterator last,
-           int i, int n, std::vector< ast::xref_t > &attr)
+bool xrefs(Iterator first, Iterator &iter, Iterator last, int i, int n,
+           std::vector< ast::xref_t > &attr)
 {
     std::vector< ast::xref_t > subsection;
 
@@ -78,7 +76,7 @@ bool xrefs(Iterator first, Iterator &iter, Iterator last,
 } // namespace detail
 
 template< typename Iterator >
-bool rstartxref(Iterator first, Iterator &iter, Iterator last, off_t& attr)
+bool rstartxref(Iterator first, Iterator &iter, Iterator last, off_t &attr)
 {
     off_t off = 0;
 
@@ -103,12 +101,12 @@ bool rstartxref(Iterator first, Iterator &iter, Iterator last, off_t& attr)
 }
 
 template< typename Iterator >
-bool startxref(Iterator first, Iterator &iter, Iterator last, off_t& attr)
+bool startxref(Iterator first, Iterator &iter, Iterator last, off_t &attr)
 {
     int n = 0;
 
-    if (lit  (first, iter, last, "startxref") && SKIP &&
-        int_ (first, iter, last, n)) {
+    if (lit(first, iter, last, "startxref") && SKIP &&
+        int_(first, iter, last, n)) {
         return attr = n, true;
     }
 

@@ -10,7 +10,7 @@ bool xreftbl(Iterator first, Iterator &iter, Iterator last,
              std::vector< ast::xref_t > &attr)
 {
     std::vector< ast::xref_t > section;
-    ast::dict_t trailer_;
+    ast::dict_t                trailer_;
 
     if (!parser::xrefs(first, iter, last, section))
         return false;

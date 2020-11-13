@@ -10,11 +10,9 @@
 
 namespace ypdf::parser {
 
-template< typename Iterator >
-bool startxref(Iterator, Iterator, off_t&);
+template< typename Iterator > bool startxref(Iterator, Iterator, off_t &);
 
-template< typename Iterator >
-bool rstartxref(Iterator, Iterator, off_t&);
+template< typename Iterator > bool rstartxref(Iterator, Iterator, off_t &);
 
 template< typename Iterator >
 bool xrefs(Iterator, Iterator &, Iterator, std::vector< ast::xref_t > &);

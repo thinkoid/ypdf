@@ -11,19 +11,20 @@
 namespace ypdf::parser {
 
 template< typename Iterator >
-inline typename Iterator::value_type
-lookahead (Iterator &iter, Iterator last) {
+inline typename Iterator::value_type lookahead(Iterator &iter, Iterator last)
+{
     return (iter == last) ? CHAR_MAX + 1 : *iter;
 }
 
 template< typename Iterator >
-inline bool
-lookahead (Iterator &iter, Iterator last, typename Iterator::value_type c) {
-    return c == lookahead (iter, last);
+inline bool lookahead(Iterator &iter, Iterator last,
+                      typename Iterator::value_type c)
+{
+    return c == lookahead(iter, last);
 }
 
 template< typename Iterator >
-bool lookahead (Iterator, Iterator, const std::string&);
+bool lookahead(Iterator, Iterator, const std::string &);
 
 } // ypdf::parser
 

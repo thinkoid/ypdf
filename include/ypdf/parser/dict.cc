@@ -12,7 +12,8 @@ namespace ypdf::parser {
 
 template< typename Iterator >
 bool definition(Iterator first, Iterator &iter, Iterator last,
-                 std::tuple< ast::name_t, ast::obj_t >& attr) {
+                std::tuple< ast::name_t, ast::obj_t > &attr)
+{
     std::tuple< ast::name_t, ast::obj_t > def;
 
     if (name(first, iter, last, std::get< 0 >(def))) {
@@ -26,8 +27,8 @@ bool definition(Iterator first, Iterator &iter, Iterator last,
 }
 
 template< typename Iterator >
-bool dictionary(Iterator first, Iterator &iter, Iterator last,
-                 ast::dict_t& attr) {
+bool dictionary(Iterator first, Iterator &iter, Iterator last, ast::dict_t &attr)
+{
     if (lit(first, iter, last, "<<")) {
         skipws(first, iter, last);
         comment(first, iter, last);
@@ -37,7 +38,7 @@ bool dictionary(Iterator first, Iterator &iter, Iterator last,
         ast::dict_t dict;
 
         for (; iter != last;) {
-            switch(*iter) {
+            switch (*iter) {
             case '/': {
                 std::tuple< ast::name_t, ast::obj_t > def;
 
@@ -46,8 +47,7 @@ bool dictionary(Iterator first, Iterator &iter, Iterator last,
                 }
 
                 dict.push_back(std::move(def));
-            }
-                break;
+            } break;
 
             case '>':
                 if (lit(first, iter, last, ">>")) {

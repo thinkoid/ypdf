@@ -84,8 +84,7 @@ auto by_type = [](name_t what) {
     });
 };
 
-template< typename Xs >
-void run_with(const options_t &opts, Xs &&xs)
+template< typename Xs > void run_with(const options_t &opts, Xs &&xs)
 {
     for (const auto &x : xs) {
         std::cout << x.xref.ref() << "\n";
@@ -120,8 +119,7 @@ void run_with(const options_t &opts, Xs &&xs)
     }
 }
 
-static void
-run_with(const options_t &opts)
+static void run_with(const options_t &opts)
 {
     auto iobjs = iobjs_from(opts["input"].as< std::string >());
     auto xs = subrange(iobjs);
@@ -134,8 +132,8 @@ run_with(const options_t &opts)
     }
 }
 
-static void
-program_options_from(int &argc, char **argv) {
+static void program_options_from(int &argc, char **argv)
+{
     bool complete_invocation = false;
 
     options_t program_options(argc, argv);
@@ -146,16 +144,15 @@ program_options_from(int &argc, char **argv) {
     }
 
     if (program_options.have("help")) {
-        std::cout << program_options.description () << std::endl;
+        std::cout << program_options.description() << std::endl;
         complete_invocation = true;
     }
 
     if (complete_invocation)
-        exit (0);
+        exit(0);
 
     global_options(program_options);
 }
-
 
 int main(int argc, char **argv)
 {
@@ -163,7 +160,7 @@ int main(int argc, char **argv)
 
     try {
         return run_with(global_options()), 0;
-    } catch (const std::exception  &x) {
+    } catch (const std::exception &x) {
         std::cerr << x.what() << std::endl;
         return 1;
     }

@@ -10,16 +10,19 @@
 
 namespace ypdf::parser {
 
-inline bool is_regular (char c) {
-    return 0 == ctype_of (c);
+inline bool is_regular(char c)
+{
+    return 0 == ctype_of(c);
 }
 
-inline bool is_delimiter (char c) {
-    return 1 == ctype_of (c);
+inline bool is_delimiter(char c)
+{
+    return 1 == ctype_of(c);
 }
 
-inline bool is_space (char c) {
-    return 2 == ctype_of (c);
+inline bool is_space(char c)
+{
+    return 2 == ctype_of(c);
 }
 
 } // ypdf::parser

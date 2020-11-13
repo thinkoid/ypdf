@@ -19,8 +19,14 @@ struct name_t : std::string
 
     using base_type::operator[];
 
-    name_t(const std::string &other) : base_type(other) { }
-    name_t(std::string &&other) noexcept : base_type(std::move(other)) { }
+    name_t(const std::string &other)
+        : base_type(other)
+    {
+    }
+    name_t(std::string &&other) noexcept
+        : base_type(std::move(other))
+    {
+    }
 };
 
 } // namespace ypdf::parser::ast

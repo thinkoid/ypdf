@@ -46,14 +46,13 @@ inline bool operator!=(const basic_xref_t &lhs, const basic_xref_t &rhs)
 
 struct stream_xref_t
 {
-    ref_t ref, stream;
+    ref_t  ref, stream;
     size_t pos;
 };
 
 inline bool operator==(const stream_xref_t &lhs, const stream_xref_t &rhs)
 {
-    return lhs.ref == rhs.ref && lhs.stream == rhs.stream &&
-        lhs.pos == rhs.pos;
+    return lhs.ref == rhs.ref && lhs.stream == rhs.stream && lhs.pos == rhs.pos;
 }
 
 inline bool operator!=(const stream_xref_t &lhs, const stream_xref_t &rhs)
@@ -63,23 +62,21 @@ inline bool operator!=(const stream_xref_t &lhs, const stream_xref_t &rhs)
 
 struct xref_t : boost::variant< free_xref_t, basic_xref_t, stream_xref_t >
 {
-    const ref_t &ref() const {
+    const ref_t &ref() const
+    {
         return boost::apply_visitor(
             detail::overloaded_{
-                [](const auto &arg) -> const ref_t & { return arg.ref; }
-            },
+                [](const auto &arg) -> const ref_t & { return arg.ref; } },
             *this);
     }
 };
 
-template< typename T >
-inline const T &as(const xref_t &arg)
+template< typename T > inline const T &as(const xref_t &arg)
 {
     return std::get< T >(arg);
 }
 
-template< typename T >
-inline bool is(const xref_t &arg)
+template< typename T > inline bool is(const xref_t &arg)
 {
     using value_type = std::remove_const_t< std::remove_pointer_t< T > >;
     return typeid(value_type) == arg.type();

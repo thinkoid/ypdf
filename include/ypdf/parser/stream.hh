@@ -9,10 +9,10 @@
 namespace ypdf::parser {
 
 template< typename Iterator >
-bool streambuf_ (Iterator, Iterator &, Iterator, ast::stream_t&);
+bool streambuf_(Iterator, Iterator &, Iterator, ast::stream_t &);
 
 template< typename Iterator >
-bool stream_ (Iterator, Iterator &, Iterator, ast::stream_t&);
+bool stream_(Iterator, Iterator &, Iterator, ast::stream_t &);
 
 } // ypdf::parser
 

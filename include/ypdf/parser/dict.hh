@@ -17,11 +17,11 @@ struct obj_t;
 } // namespace ast
 
 template< typename Iterator >
-bool definition (Iterator, Iterator &, Iterator,
-                 std::tuple< std::string, ast::obj_t >&);
+bool definition(Iterator, Iterator &, Iterator,
+                std::tuple< std::string, ast::obj_t > &);
 
 template< typename Iterator >
-bool dictionary (Iterator, Iterator &, Iterator, ast::dict_t &);
+bool dictionary(Iterator, Iterator &, Iterator, ast::dict_t &);
 
 } // ypdf::parser
 

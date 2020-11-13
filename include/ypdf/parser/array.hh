@@ -9,7 +9,7 @@
 namespace ypdf::parser {
 
 template< typename Iterator >
-bool array (Iterator, Iterator &, Iterator, ast::array_t&);
+bool array(Iterator, Iterator &, Iterator, ast::array_t &);
 
 } // ypdf::parser
 

@@ -14,16 +14,16 @@
 namespace ypdf::parser {
 
 template< typename Iterator >
-bool obj(Iterator first, Iterator &iter, Iterator last, ast::obj_t& attr) {
+bool obj(Iterator first, Iterator &iter, Iterator last, ast::obj_t &attr)
+{
     if (iter != last) {
-        switch(const int c = *iter) {
+        switch (const int c = *iter) {
         case '(': {
             ast::string_t s;
 
             if (string_(first, iter, last, s))
                 return attr = std::move(s), true;
-        }
-            break;
+        } break;
 
         case '<': {
             if (lookahead(iter, last, "<<")) {
@@ -31,31 +31,27 @@ bool obj(Iterator first, Iterator &iter, Iterator last, ast::obj_t& attr) {
 
                 if (dictionary(first, iter, last, dict))
                     return attr = std::move(dict), true;
-            }
-            else {
+            } else {
                 ast::string_t s;
 
                 if (angular_string(first, iter, last, s))
                     return attr = std::move(s), true;
             }
-        }
-            break;
+        } break;
 
         case '/': {
             ast::name_t s;
 
             if (name(first, iter, last, s))
                 return attr = std::move(s), true;
-        }
-            break;
+        } break;
 
         case '[': {
             ast::array_t arr;
 
             if (array(first, iter, last, arr))
                 return attr = std::move(arr), true;
-        }
-            break;
+        } break;
 
         case 's': {
             if (lookahead(iter, last, "stream")) {
@@ -64,7 +60,7 @@ bool obj(Iterator first, Iterator &iter, Iterator last, ast::obj_t& attr) {
                 if (stream_(first, iter, last, stream))
                     return attr = std::move(stream), true;
             }
-        }  break;
+        } break;
 
         case 't':
         case 'f': {
@@ -73,18 +69,25 @@ bool obj(Iterator first, Iterator &iter, Iterator last, ast::obj_t& attr) {
             if (bool_(first, iter, last, b)) {
                 return attr = b, true;
             }
-        }
-            break;
+        } break;
 
         case 'n':
             if (lit(first, iter, last, "null")) {
-                return attr = ast::null_t{ }, true;
+                return attr = ast::null_t{}, true;
             }
 
             break;
 
-        case '0': case '1': case '2': case '3': case '4':
-        case '5': case '6': case '7': case '8': case '9': {
+        case '0':
+        case '1':
+        case '2':
+        case '3':
+        case '4':
+        case '5':
+        case '6':
+        case '7':
+        case '8':
+        case '9': {
             // reference, ...
             YPDF_ITERATOR_GUARD(iter);
 
@@ -96,7 +99,8 @@ bool obj(Iterator first, Iterator &iter, Iterator last, ast::obj_t& attr) {
             }
         }
 
-        case '+': case '-': {
+        case '+':
+        case '-': {
             {
                 // ... double, or ...
                 YPDF_ITERATOR_GUARD(iter);
@@ -114,8 +118,7 @@ bool obj(Iterator first, Iterator &iter, Iterator last, ast::obj_t& attr) {
 
             if (int_(first, iter, last, n))
                 return attr = n, true;
-        }
-            break;
+        } break;
 
         case '.': {
             double d;
@@ -123,8 +126,7 @@ bool obj(Iterator first, Iterator &iter, Iterator last, ast::obj_t& attr) {
             if (double_(first, iter, last, d)) {
                 return attr = d, true;
             }
-        }
-            break;
+        } break;
 
         default:
             break;

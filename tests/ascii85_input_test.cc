@@ -105,13 +105,13 @@ BOOST_DATA_TEST_CASE(input, data::make(input_dataset),
         str.push(ypdf::iostreams::ascii85_input_filter_t());
         str.push(io::array_source(from.c_str(), from.size()));
 
-        for (int c; EOF != (c = str.get()); )
+        for (int c; EOF != (c = str.get());)
             s.append(1, c);
 
         io::close(str);
 
-        BOOST_TEST(str.eof()  == eof);
-        BOOST_TEST(str.bad()  == bad);
+        BOOST_TEST(str.eof() == eof);
+        BOOST_TEST(str.bad() == bad);
         BOOST_TEST(str.fail() == fail);
     }
 

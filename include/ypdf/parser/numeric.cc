@@ -11,9 +11,10 @@
 namespace ypdf::parser {
 
 template< typename Iterator >
-bool bool_(Iterator first, Iterator &iter, Iterator last, bool& b) {
+bool bool_(Iterator first, Iterator &iter, Iterator last, bool &b)
+{
     if (iter != last) {
-        switch(*iter) {
+        switch (*iter) {
         case 't':
             if (lit(first, iter, last, "true"))
                 return b = true;
@@ -33,7 +34,8 @@ bool bool_(Iterator first, Iterator &iter, Iterator last, bool& b) {
 }
 
 template< typename Iterator >
-bool digit(Iterator, Iterator &iter, Iterator last, int& attr) {
+bool digit(Iterator, Iterator &iter, Iterator last, int &attr)
+{
     if (iter != last) {
         if (std::isdigit(*iter)) {
             return attr = *iter++ - '0', true;
@@ -45,7 +47,8 @@ bool digit(Iterator, Iterator &iter, Iterator last, int& attr) {
 
 template< typename Iterator, typename T >
 typename std::enable_if< std::is_integral_v< T >, bool >::type
-int_(Iterator first, Iterator &iter, Iterator last, T& attr) {
+int_(Iterator first, Iterator &iter, Iterator last, T &attr)
+{
     if (iter != last) {
         std::stringstream ss;
 
@@ -65,7 +68,8 @@ int_(Iterator first, Iterator &iter, Iterator last, T& attr) {
 }
 
 template< typename Iterator >
-bool double_(Iterator first, Iterator &iter, Iterator last, double& attr) {
+bool double_(Iterator first, Iterator &iter, Iterator last, double &attr)
+{
     if (iter != last) {
         std::stringstream ss;
 
@@ -122,10 +126,10 @@ bool double_(Iterator first, Iterator &iter, Iterator last, double& attr) {
 }
 
 template< typename Iterator, typename T, typename U >
-typename std::enable_if<
-    std::is_integral_v< T > &&
-    std::is_integral_v< U >, bool >::type
-ints(Iterator first, Iterator &iter, Iterator last, T& a, U& b) {
+typename std::enable_if< std::is_integral_v< T > && std::is_integral_v< U >,
+                         bool >::type
+ints(Iterator first, Iterator &iter, Iterator last, T &a, U &b)
+{
     T t;
     U u;
 

@@ -9,13 +9,13 @@
 namespace ypdf::parser {
 
 template< typename Iterator >
-bool parenthesized_string (Iterator, Iterator &, Iterator, ast::string_t&);
+bool parenthesized_string(Iterator, Iterator &, Iterator, ast::string_t &);
 
 template< typename Iterator >
-bool angular_string (Iterator, Iterator &, Iterator, ast::string_t&);
+bool angular_string(Iterator, Iterator &, Iterator, ast::string_t &);
 
 template< typename Iterator >
-bool string_ (Iterator, Iterator &, Iterator, ast::string_t&);
+bool string_(Iterator, Iterator &, Iterator, ast::string_t &);
 
 } // ypdf::parser
 

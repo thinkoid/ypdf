@@ -8,7 +8,9 @@
 
 namespace ypdf::parser::ast {
 
-struct null_t { };
+struct null_t
+{
+};
 
 } // namespace ypdf::parser::ast
 

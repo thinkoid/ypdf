@@ -11,14 +11,16 @@ namespace ypdf::parser::ast {
 dict_t::iterator dict_t::find(const char *k)
 {
     iterator it = begin();
-    for (; it != end() && std::get< 0 >(*it).compare(k); ++it) ;
+    for (; it != end() && std::get< 0 >(*it).compare(k); ++it)
+        ;
     return it;
 }
 
 dict_t::const_iterator dict_t::find(const char *k) const
 {
     const_iterator it = begin();
-    for (; it != end() && std::get< 0 >(*it).compare(k); ++it) ;
+    for (; it != end() && std::get< 0 >(*it).compare(k); ++it)
+        ;
     return it;
 }
 

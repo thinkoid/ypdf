@@ -28,10 +28,9 @@ namespace data = ::boost::unit_test::data;
 
 namespace std {
 
-inline ostream &
-operator<<(ostream &str, const vector< ast::xref_t > &arg)
+inline ostream &operator<<(ostream &str, const vector< ast::xref_t > &arg)
 {
-    ::ranges::copy(arg, ::ranges::ostream_iterator< ast::xref_t >{cout, " "});
+    ::ranges::copy(arg, ::ranges::ostream_iterator< ast::xref_t >{ cout, " " });
     return str;
 }
 

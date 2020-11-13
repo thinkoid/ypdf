@@ -19,29 +19,26 @@ namespace ypdf::parser {
 namespace detail {
 
 template< typename Rng, size_t... I >
-auto to_tuple_fn(Rng&& rng, std::index_sequence< I... >)
+auto to_tuple_fn(Rng &&rng, std::index_sequence< I... >)
 {
-   return std::make_tuple(rng[I]...);
+    return std::make_tuple(rng[I]...);
 }
 
-template< typename T, size_t N >
-struct homogenous_tuple_t
+template< typename T, size_t N > struct homogenous_tuple_t
 {
-    template< typename = std::make_index_sequence< N > >
-    struct impl;
+    template< typename = std::make_index_sequence< N > > struct impl;
 
-    template< size_t... Is >
-    struct impl< std::index_sequence< Is... > > {
+    template< size_t... Is > struct impl< std::index_sequence< Is... > >
+    {
         template< size_t > using wrap = T;
         using type = std::tuple< wrap< Is >... >;
     };
 
 public:
-    using type = typename impl< >::type;
+    using type = typename impl<>::type;
 };
 
-template< typename T, size_t N >
-inline auto to_tuple_array(const ast::obj_t &obj)
+template< typename T, size_t N > inline auto to_tuple_array(const ast::obj_t &obj)
 {
     using namespace ranges;
 
@@ -51,29 +48,24 @@ inline auto to_tuple_array(const ast::obj_t &obj)
     auto to_type = [](const auto &x) { return ast::as< T >(x); };
 
     auto to_tuple = [](const auto &rng) -> tuple_type {
-        return to_tuple_fn(rng, std::make_index_sequence< N >{ });
+        return to_tuple_fn(rng, std::make_index_sequence< N >{});
     };
 
-    const auto rng = as< ast::array_t >(obj)
-        | views::transform(to_type)
-        | views::chunk(N)
-        | views::transform(to_tuple);
+    const auto rng = as< ast::array_t >(obj) | views::transform(to_type) |
+                     views::chunk(N) | views::transform(to_tuple);
 
     return rng | to< result_type >();
 }
 
-template< typename T >
-inline auto to_array(const ast::obj_t &obj)
+template< typename T > inline auto to_array(const ast::obj_t &obj)
 {
     using namespace ranges;
 
     std::vector< T > xs;
 
     if (is< ast::array_t >(obj)) {
-        copy(as< ast::array_t >(obj)
-             | views::transform([](const auto &x) {
-                 return ast::as< T >(x);
-             }),
+        copy(as< ast::array_t >(obj) |
+                 views::transform([](const auto &x) { return ast::as< T >(x); }),
              ranges::back_inserter(xs));
     } else if (ast::is< T >(obj)) {
         xs.push_back(ast::as< T >(obj));
@@ -106,23 +98,20 @@ inline auto make_filtering_istream(const ast::dict_t &dict)
     return ptr;
 }
 
-inline auto xrefstm_W(const ast::dict_t &dict) ->
-    std::tuple< int, int, int >
+inline auto xrefstm_W(const ast::dict_t &dict) -> std::tuple< int, int, int >
 {
     return to_tuple_array< int, 3 >(dict.at("/W")).front();
 }
 
-inline auto
-xrefstm_Index(const ast::dict_t &dict, size_t default_size) ->
-    std::vector< std::tuple< int, int > >
+inline auto xrefstm_Index(const ast::dict_t &dict, size_t default_size)
+    -> std::vector< std::tuple< int, int > >
 {
-    return dict.has("/Index")
-        ? to_tuple_array< int, 2 >(dict.at("/Index"))
-        : std::vector< std::tuple< int, int > >{{ 0, default_size }};
+    return dict.has("/Index") ?
+               to_tuple_array< int, 2 >(dict.at("/Index")) :
+               std::vector< std::tuple< int, int > >{ { 0, default_size } };
 }
 
-inline int
-xrefstm_get(::boost::iostreams::filtering_istream &stream, int w)
+inline int xrefstm_get(::boost::iostreams::filtering_istream &stream, int w)
 {
     unsigned n = 0;
 
@@ -135,9 +124,8 @@ xrefstm_get(::boost::iostreams::filtering_istream &stream, int w)
     return n;
 }
 
-inline auto
-xrefstm_block(::boost::iostreams::filtering_istream &stream,
-              int start, int len, int a, int b, int c)
+inline auto xrefstm_block(::boost::iostreams::filtering_istream &stream,
+                          int start, int len, int a, int b, int c)
 {
     ASSERT(b);
 
@@ -149,7 +137,7 @@ xrefstm_block(::boost::iostreams::filtering_istream &stream,
         if (a)
             x = xrefstm_get(stream, a);
 
-        switch(x) {
+        switch (x) {
         case 0:
             y = xrefstm_get(stream, b);
 
@@ -228,8 +216,8 @@ bool xrefstm(Iterator first, Iterator &iter, Iterator last,
 
     ASSERT(2 == ast::as< ast::array_t >(iobj_.obj).size());
 
-    const auto &dict = as< ast::dict_t   >(iobj_.obj[0]);
-    const auto &stm  = as< ast::stream_t >(iobj_.obj[1]);
+    const auto &dict = as< ast::dict_t >(iobj_.obj[0]);
+    const auto &stm = as< ast::stream_t >(iobj_.obj[1]);
 
     attr = detail::xrefstm_xrefs(dict, stm);
 

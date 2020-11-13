@@ -31,12 +31,10 @@
 namespace ypdf {
 
 template< typename Iterator >
-bool parse(Iterator, Iterator &, Iterator,
-           std::vector< parser::ast::xref_t > &);
+bool parse(Iterator, Iterator &, Iterator, std::vector< parser::ast::xref_t > &);
 
 template< typename Iterator >
-bool parse(Iterator, Iterator &, Iterator,
-           std::vector< parser::ast::iobj_t > &);
+bool parse(Iterator, Iterator &, Iterator, std::vector< parser::ast::iobj_t > &);
 
 } // namespace ypdf
 

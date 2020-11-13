@@ -9,8 +9,8 @@
 namespace ypdf::parser {
 
 template< typename Iterator >
-bool array(Iterator first, Iterator &iter, Iterator last,
-           ast::array_t& attr) {
+bool array(Iterator first, Iterator &iter, Iterator last, ast::array_t &attr)
+{
     ast::array_t arr;
 
     if (lit(first, iter, last, '[')) {
