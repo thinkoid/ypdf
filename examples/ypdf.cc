@@ -11,6 +11,10 @@ using namespace ypdf::parser::ast;
 #include <filesystem>
 namespace fs = std::filesystem;
 
+#include <boost/iostreams/concepts.hpp>
+#include <boost/iostreams/stream.hpp>
+#include <boost/iostreams/filtering_stream.hpp>
+#include <boost/iostreams/device/file.hpp>
 #include <boost/iostreams/device/mapped_file.hpp>
 namespace io = ::boost::iostreams;
 
@@ -39,6 +43,7 @@ options_t::options_t(int argc, char **argv)
     config.add_options()
         ( "hex", "write binary data as ASCII hex")
         ( "type,t", ::po::value< std::string >(), "filter objects by type")
+        ( "ref,r",  ::po::value< int >(), "filter objects by ref number")
         ("input,i", ::po::value< std::string >(), "input (file).");
 
     desc_ = std::make_shared< ::po::options_description >();
@@ -73,6 +78,85 @@ iobjs_from(const std::string &filename)
     return iobjs;
 }
 
+struct asciihex_output_filter_t : public boost::iostreams::output_filter
+{
+    template< typename Sink >
+    bool put(Sink &dst, char c)
+    {
+        static const char *s = "0123456789ABCDEF";
+
+        if (eof_)
+            return false;
+
+        const auto u = static_cast< unsigned char >(c);
+
+        return
+            ::io::put(dst, s[(u & 0xF0) >> 4]) &&
+            ::io::put(dst, s[ u & 0x0F]) &&
+            ::io::put(dst, ' ');
+    }
+
+    template< typename Sink >
+    void close(Sink &dst)
+    {
+        eof_ = true;
+    }
+
+private:
+    bool eof_ = false;
+};
+
+static auto make_filtering_stream(const options_t &opts)
+{
+    auto ptr = std::make_unique< ::io::filtering_ostream >();
+
+    if (opts.have("hex"))
+        ptr->push(asciihex_output_filter_t());
+
+    ptr->push(boost::ref(std::cout));
+
+    return ptr;
+}
+
+template< typename Xs >
+void run_with(const options_t &opts, Xs &&xs)
+{
+    auto ptr = make_filtering_stream(opts);
+    auto &filtering_stream = *ptr;
+
+    for (const auto &x : xs) {
+        std::cout << x.xref.ref() << "\n";
+
+        const auto &arr = as< array_t >(x.obj);
+        ASSERT(arr.size());
+
+        std::cout << arr[0] << "\n";
+
+        if (1 < arr.size()) {
+            const auto &str = as< stream_t >(arr[1]);
+            filtering_stream << str << "\n";
+        }
+
+        std::cout << "\n";
+    }
+}
+
+auto by_ref = [](int what) {
+    return views::filter([=](const iobj_t &iobj) {
+        const auto &xref = as< basic_xref_t >(iobj.xref);
+        return xref.ref.num == what;
+    });
+};
+template< typename Xs >
+void run_with_ref(const options_t &opts, Xs &&xs)
+{
+    if (opts.have("ref")) {
+        run_with(opts, xs | by_ref(opts["ref"].as< int >()));
+    } else {
+        run_with(opts, xs);
+    }
+}
+
 auto dict_of = [](const auto &iobj) {
     return as< dict_t >(as< array_t >(iobj.obj)[0]);
 };
@@ -84,52 +168,21 @@ auto by_type = [](name_t what) {
     });
 };
 
-template< typename Xs > void run_with(const options_t &opts, Xs &&xs)
+template< typename Xs >
+void run_with_type(const options_t &opts, Xs &&xs)
 {
-    for (const auto &x : xs) {
-        std::cout << x.xref.ref() << "\n";
-
-        const auto &arr = as< array_t >(x.obj);
-        ASSERT(arr.size());
-
-        std::cout << arr[0] << std::endl;
-
-        if (1 < arr.size()) {
-            const auto &stream = as< stream_t >(arr[1]);
-
-            if (opts.have("hex")) {
-                ::ypdf::detail::ostream_guard_t guard(std::cout);
-
-                std::cout << std::hex << std::setw(2) << std::setfill('0');
-
-                for (auto [c, i] : views::zip(stream, views::iota(0))) {
-                    if (i && 0 == (i % 16))
-                        std::cout << "\n";
-
-                    std::cout << std::setw(2) << int((unsigned char)c) << ' ';
-                }
-            } else {
-                std::cout << stream;
-            }
-
-            std::cout << "\n";
-        }
-
-        std::cout << "\n";
+    if (opts.have("type")) {
+        auto what = opts["type"].as< std::string >();
+        run_with_ref(opts, xs | by_type(what));
+    } else {
+        run_with_ref(opts, xs);
     }
 }
 
 static void run_with(const options_t &opts)
 {
     auto iobjs = iobjs_from(opts["input"].as< std::string >());
-    auto xs = subrange(iobjs);
-
-    if (opts.have("type")) {
-        auto what = opts["type"].as< std::string >();
-        run_with(opts, xs | by_type(what));
-    } else {
-        run_with(opts, xs);
-    }
+    run_with_type(opts, subrange(iobjs));
 }
 
 static void program_options_from(int &argc, char **argv)
