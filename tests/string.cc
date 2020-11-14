@@ -50,8 +50,8 @@ BOOST_DATA_TEST_CASE(string_, data::make (dataset), s, v, b)
 
     auto first = s.begin (), iter = first, last = s.end ();
 
-    std::string attr;
-    const auto result = ypdf::parser::string_ (first, iter, last, attr);
+    ast::string_t attr;
+    const auto result = ypdf::parser::string_(first, iter, last, attr);
 
     BOOST_TEST (b == result);
     BOOST_TEST (v.size () == std::distance (first, iter));

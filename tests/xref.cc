@@ -26,12 +26,44 @@ namespace data = ::boost::unit_test::data;
 #include <iostream>
 #include <exception>
 
+namespace ypdf::parser::ast {
+
+inline std::ostream &operator<<(std::ostream &s, const ref_t &x)
+{
+    return s << x.num << ' ' << x.gen << " R";
+}
+
+inline std::ostream &operator<<(std::ostream &s, const free_xref_t &arg)
+{
+    return s << arg.ref;
+}
+
+inline std::ostream &operator<<(std::ostream &s, const basic_xref_t &arg)
+{
+    return s << arg.ref << " " << arg.off;
+}
+
+inline std::ostream &operator<<(std::ostream &s, const stream_xref_t &arg)
+{
+    return s << arg.ref << " " << arg.stream << " " << arg.pos;
+}
+
+inline std::ostream &operator<<(std::ostream &s, const xref_t &arg)
+{
+    boost::apply_visitor([&s](const auto &x) { s << x; }, arg);
+    return s;
+}
+
+} // namespace ypdf::parser::ast
+
 namespace std {
 
-inline ostream &operator<<(ostream &str, const vector< ast::xref_t > &arg)
+inline ostream &operator<<(ostream &s, const vector< ast::xref_t > &xs)
 {
-    ::ranges::copy(arg, ::ranges::ostream_iterator< ast::xref_t >{ cout, " " });
-    return str;
+    for (const auto &x : xs)
+        s << x << ' ';
+
+    return s;
 }
 
 } // namespace std
@@ -39,7 +71,8 @@ inline ostream &operator<<(ostream &str, const vector< ast::xref_t > &arg)
 BOOST_AUTO_TEST_SUITE(xref)
 
 const std::vector<
-    std::tuple< std::string, size_t, bool, std::vector< ast::xref_t > > >
+    std::tuple< std::string, size_t, bool, std::vector< ast::xref_t > >
+    >
 xreftbl_dataset
 {
 #define B(a, b, c) ast::xref_t(ast::basic_xref_t{ { a, b }, c })
@@ -62,7 +95,7 @@ xreftbl_dataset
 #undef F
 };
 
-BOOST_DATA_TEST_CASE(xreftbl, data::make (xreftbl_dataset), s, n, b, xreftbl)
+BOOST_DATA_TEST_CASE(xreftbl, data::make(xreftbl_dataset), s, n, b, xreftbl_)
 {
     using namespace ypdf::parser;
 
@@ -75,7 +108,7 @@ BOOST_DATA_TEST_CASE(xreftbl, data::make (xreftbl_dataset), s, n, b, xreftbl)
     BOOST_TEST (n == std::distance (first, iter));
 
     if (b) {
-        BOOST_TEST(ranges::equal(xreftbl, attr));
+        BOOST_TEST(ranges::equal(xreftbl_, attr));
     }
 }
 
