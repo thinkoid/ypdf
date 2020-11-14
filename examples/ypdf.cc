@@ -106,23 +106,15 @@ private:
     bool eof_ = false;
 };
 
-static auto make_filtering_stream(const options_t &opts)
-{
-    auto ptr = std::make_unique< ::io::filtering_ostream >();
-
-    if (opts.have("hex"))
-        ptr->push(asciihex_output_filter_t());
-
-    ptr->push(boost::ref(std::cout));
-
-    return ptr;
-}
-
 template< typename Xs >
 void run_with(const options_t &opts, Xs &&xs)
 {
-    auto ptr = make_filtering_stream(opts);
-    auto &filtering_stream = *ptr;
+    ::io::filtering_ostream s;
+
+    if (opts.have("hex"))
+        s.push(asciihex_output_filter_t());
+
+    s.push(boost::ref(std::cout));
 
     for (const auto &x : xs) {
         std::cout << x.xref.ref() << "\n";
@@ -130,11 +122,11 @@ void run_with(const options_t &opts, Xs &&xs)
         const auto &arr = as< array_t >(x.obj);
         ASSERT(arr.size());
 
-        std::cout << arr[0] << "\n";
+        std::cout << arr[0] << std::endl;
 
         if (1 < arr.size()) {
-            const auto &str = as< stream_t >(arr[1]);
-            filtering_stream << str << "\n";
+            const auto &stream = as< stream_t >(arr[1]);
+            s << stream << std::endl;
         }
 
         std::cout << "\n";
@@ -147,8 +139,9 @@ auto by_ref = [](int what) {
         return xref.ref.num == what;
     });
 };
+
 template< typename Xs >
-void run_with_ref(const options_t &opts, Xs &&xs)
+void run_with_ref_filter(const options_t &opts, Xs &&xs)
 {
     if (opts.have("ref")) {
         run_with(opts, xs | by_ref(opts["ref"].as< int >()));
@@ -168,21 +161,16 @@ auto by_type = [](name_t what) {
     });
 };
 
-template< typename Xs >
-void run_with_type(const options_t &opts, Xs &&xs)
-{
-    if (opts.have("type")) {
-        auto what = opts["type"].as< std::string >();
-        run_with_ref(opts, xs | by_type(what));
-    } else {
-        run_with_ref(opts, xs);
-    }
-}
-
 static void run_with(const options_t &opts)
 {
     auto iobjs = iobjs_from(opts["input"].as< std::string >());
-    run_with_type(opts, subrange(iobjs));
+
+    if (opts.have("type")) {
+        auto what = opts["type"].as< std::string >();
+        run_with_ref_filter(opts, iobjs | by_type(what));
+    } else {
+        run_with_ref_filter(opts, iobjs);
+    }
 }
 
 static void program_options_from(int &argc, char **argv)
