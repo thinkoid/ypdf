@@ -62,6 +62,10 @@ inline bool operator!=(const stream_xref_t &lhs, const stream_xref_t &rhs)
 
 struct xref_t : boost::variant< free_xref_t, basic_xref_t, stream_xref_t >
 {
+    using base_type = boost::variant<
+        free_xref_t, basic_xref_t, stream_xref_t
+        >;
+
     const ref_t &ref() const
     {
         return boost::apply_visitor(
@@ -71,9 +75,21 @@ struct xref_t : boost::variant< free_xref_t, basic_xref_t, stream_xref_t >
     }
 };
 
+inline bool operator==(const xref_t &lhs, const xref_t &rhs)
+{
+    return
+        static_cast< const xref_t::base_type & >(lhs) ==
+        static_cast< const xref_t::base_type & >(rhs);
+}
+
+inline bool operator!=(const xref_t &lhs, const xref_t &rhs)
+{
+    return !(lhs == rhs);
+}
+
 template< typename T > inline const T &as(const xref_t &arg)
 {
-    return std::get< T >(arg);
+    return boost::get< T >(arg);
 }
 
 template< typename T > inline bool is(const xref_t &arg)
