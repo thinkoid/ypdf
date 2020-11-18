@@ -42,6 +42,7 @@ options_t::options_t(int argc, char **argv)
 
     config.add_options()
         ( "hex", "write binary data as ASCII hex")
+        ( "deflate", "deflate compressed streams")
         ( "type,t", ::po::value< std::string >(), "filter objects by type")
         ( "ref,r",  ::po::value< int >(), "filter objects by ref number")
         ("input,i", ::po::value< std::string >(), "input (file).");
@@ -78,6 +79,8 @@ iobjs_from(const std::string &filename)
     return iobjs;
 }
 
+namespace example {
+
 struct asciihex_output_filter_t : public boost::iostreams::output_filter
 {
     template< typename Sink >
@@ -106,30 +109,91 @@ private:
     bool eof_ = false;
 };
 
+template< typename T > inline auto to_array(const obj_t &obj)
+{
+    using namespace ranges;
+
+    std::vector< T > xs;
+
+    if (is< array_t >(obj)) {
+        copy(as< array_t >(obj) | views::transform([](auto &x) {
+            return as< T >(x);
+        }), ranges::back_inserter(xs));
+    } else if (is< T >(obj)) {
+        xs.push_back(as< T >(obj));
+    } else {
+        ASSERT(0);
+    }
+
+    return xs;
+};
+
+} // namespace example
+
+auto make_filtering_istream(const options_t &opts, const dict_t &dict)
+{
+    namespace io_ = ypdf::iostreams;
+
+    auto ptr = std::make_unique< io::filtering_istream >();
+
+    if (opts.have("deflate") && dict.has("/Filter")) {
+        for (auto &filter : example::to_array< name_t >(dict.at("/Filter"))) {
+            if (filter == "/FlateDecode") {
+                ptr->push(io::zlib_decompressor());
+            } else if (filter == "/ASCII85Decode") {
+                ptr->push(io_::ascii85_input_filter_t());
+            } else if (filter == "/LZWDecode") {
+                ptr->push(io_::lzw_input_filter_t());
+            } else {
+                throw std::runtime_error("unsupported filter");
+            }
+        }
+    }
+
+    return ptr;
+}
+
+auto make_filtering_ostream(const options_t &opts)
+{
+    auto ptr = std::make_unique< io::filtering_ostream >();
+
+    if (opts.have("hex"))
+        ptr->push(example::asciihex_output_filter_t());
+
+    ptr->push(boost::ref(std::cout));
+
+    return ptr;
+}
+
 template< typename Xs >
 void run_with(const options_t &opts, Xs &&xs)
 {
-    ::io::filtering_ostream s;
-
-    if (opts.have("hex"))
-        s.push(asciihex_output_filter_t());
-
-    s.push(boost::ref(std::cout));
+    auto out = make_filtering_ostream(opts);
 
     for (const auto &x : xs) {
-        std::cout << x.xref.ref() << "\n";
+        std::cout << x.xref.ref() << std::endl;
 
         const auto &arr = as< array_t >(x.obj);
         ASSERT(arr.size());
 
-        std::cout << arr[0] << std::endl;
+        const auto &dict = as< dict_t >(arr[0]);
+        std::cout << dict << std::endl;
 
         if (1 < arr.size()) {
+            auto in = make_filtering_istream(opts, dict);
+
             const auto &stream = as< stream_t >(arr[1]);
-            s << stream << std::endl;
+            in->push(io::array_source(stream.data(), stream.size()));
+
+            for (int c; EOF != (c = in->get()); ) {
+                ASSERT(0 <= c && c <= 256);
+                out->put(char(c));
+            }
+
+            out->flush();
         }
 
-        std::cout << "\n";
+        std::cout << std::endl;
     }
 }
 
