@@ -130,7 +130,8 @@ template< typename T > inline auto to_array(const obj_t &obj)
 
 } // namespace example
 
-auto make_filtering_istream(const options_t &opts, const dict_t &dict)
+static auto
+make_filtering_istream(const options_t &opts, const dict_t &dict)
 {
     namespace io_ = ypdf::iostreams;
 
@@ -153,7 +154,7 @@ auto make_filtering_istream(const options_t &opts, const dict_t &dict)
     return ptr;
 }
 
-auto make_filtering_ostream(const options_t &opts)
+static auto make_filtering_ostream(const options_t &opts)
 {
     auto ptr = std::make_unique< io::filtering_ostream >();
 
@@ -197,7 +198,20 @@ void run_with(const options_t &opts, Xs &&xs)
     }
 }
 
-auto by_ref = [](int what) {
+static inline auto dict_of(const auto &iobj)
+{
+    return as< dict_t >(as< array_t >(iobj.obj)[0]);
+};
+
+static auto by_type(name_t what) {
+    return views::filter([=](const iobj_t &iobj) {
+        const auto &dict = dict_of(iobj);
+        return dict.has("/Type") && what == as< name_t >(dict.at("/Type"));
+    });
+};
+
+static inline auto by_ref(int what)
+{
     return views::filter([=](const iobj_t &iobj) {
         const auto &xref = as< basic_xref_t >(iobj.xref);
         return xref.ref.num == what;
@@ -213,17 +227,6 @@ void run_with_ref_filter(const options_t &opts, Xs &&xs)
         run_with(opts, xs);
     }
 }
-
-auto dict_of = [](const auto &iobj) {
-    return as< dict_t >(as< array_t >(iobj.obj)[0]);
-};
-
-auto by_type = [](name_t what) {
-    return views::filter([=](const iobj_t &iobj) {
-        const auto &dict = dict_of(iobj);
-        return dict.has("/Type") && what == as< name_t >(dict.at("/Type"));
-    });
-};
 
 static void run_with(const options_t &opts)
 {
