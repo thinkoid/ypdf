@@ -194,7 +194,7 @@ inline auto xrefstm_xrefs(const ast::dict_t &dict, const ast::stream_t &stream)
         auto ptr = make_filtering_istream(dict);
         ptr->push(io::array_source(stream.data(), stream.size()));
 
-        for (const auto [start, len] : index) {
+        for (const auto& [start, len] : index) {
             const auto block = xrefstm_block(*ptr, start, len, a, b, c);
             xrefs_.insert(xrefs_.end(), block.begin(), block.end());
         }
