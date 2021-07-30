@@ -177,21 +177,25 @@ void run_with(const options_t &opts, Xs &&xs)
         const auto &arr = as< array_t >(x.obj);
         ASSERT(arr.size());
 
-        const auto &dict = as< dict_t >(arr[0]);
-        std::cout << dict << std::endl;
+        if (is< dict_t >(arr[0])) {
+            const auto &dict = as< dict_t >(arr[0]);
+            std::cout << dict << std::endl;
 
-        if (1 < arr.size()) {
-            auto in = make_filtering_istream(opts, dict);
+            if (1 < arr.size()) {
+                auto in = make_filtering_istream(opts, dict);
 
-            const auto &stream = as< stream_t >(arr[1]);
-            in->push(io::array_source(stream.data(), stream.size()));
+                const auto &stream = as< stream_t >(arr[1]);
+                in->push(io::array_source(stream.data(), stream.size()));
 
-            for (int c; EOF != (c = in->get()); ) {
-                ASSERT(0 <= c && c <= 256);
-                out->put(char(c));
+                for (int c; EOF != (c = in->get()); ) {
+                    ASSERT(0 <= c && c <= 256);
+                    out->put(char(c));
+                }
+
+                out->flush();
             }
-
-            out->flush();
+        } else {
+            std::cout << arr[0] << std::endl;
         }
 
         std::cout << std::endl;
