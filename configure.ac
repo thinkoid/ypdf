@@ -1,6 +1,6 @@
 # -*- Autoconf -*-
 
-AC_INIT([ypdf],[0.0.1],)
+AC_INIT([ypdf],[0.0.1],[])
 
 AC_CONFIG_HEADERS([include/ypdf/detail/_config.hh:include/ypdf/detail/_config.hh.ac])
 AC_CONFIG_MACRO_DIRS([etc/m4])
@@ -13,7 +13,7 @@ AC_CONFIG_CXX_WARNINGS
 
 AC_ENABLE_CXX_DIALECT([c++2a])
 
-AC_PROG_LIBTOOL
+LT_INIT
 AC_PROG_MAKE_SET(gmake)
 AM_PROG_AS
 
@@ -38,5 +38,5 @@ AC_CONFIG_FILES(src/Makefile)
 AC_CONFIG_FILES(examples/Makefile)
 AC_CONFIG_FILES(tests/Makefile)
 
-AC_OUTPUT()
+AC_OUTPUT
 
