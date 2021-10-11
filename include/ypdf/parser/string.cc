@@ -70,15 +70,13 @@ bool parenthesized_string(Iterator first, Iterator &iter, Iterator last,
                 s += *iter;
 
                 if ('0' <= *iter && *iter <= '7') {
-                    if (++iter == last || *iter < '0' || '7' < *iter)
-                        return false;
+                    if (++iter != last && *iter < '0' && '7' < *iter) {
+                        s += *iter;
 
-                    s += *iter;
-
-                    if (++iter == last || *iter < '0' || '7' < *iter)
-                        return false;
-
-                    s += *iter++;
+                        if (++iter != last && *iter < '0' && '7' < *iter) {
+                            s += *iter;
+                        }
+                    }
                 }
 
                 break;
