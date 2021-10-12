@@ -60,8 +60,14 @@ int_(Iterator first, Iterator &iter, Iterator last, T &attr)
         for (; iter != last && std::isdigit(*iter); ++iter, empty = false)
             ss << *iter;
 
-        if (!empty)
-            return attr = std::stol(ss.str()), true;
+        if (!empty) {
+            try {
+                return attr = std::stol(ss.str()), true;
+            }
+            catch(const std::out_of_range &) {
+                return attr = static_cast< T >(std::stod(ss.str())), true;
+            }
+        }
     }
 
     return false;
