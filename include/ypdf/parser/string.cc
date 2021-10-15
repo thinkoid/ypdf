@@ -54,7 +54,7 @@ bool parenthesized_string(Iterator first, Iterator &iter, Iterator last,
                 if (++iter == last)
                     return false;
 
-                if (*iter != '\n')
+                if (*iter == '\n')
                     //
                     // Allow \CRLF
                     //
