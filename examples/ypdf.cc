@@ -7,6 +7,7 @@ using namespace ypdf::parser::ast;
 #include "options.hh"
 
 #include <iostream>
+#include <optional>
 
 #include <filesystem>
 namespace fs = std::filesystem;
@@ -130,6 +131,12 @@ template< typename T > inline auto to_array(const obj_t &obj)
 
 } // namespace example
 
+template< typename T >
+inline std::optional< T > maybe(const dict_t &xs, const char *key)
+{
+    return xs.has(key) ? as< T >(xs.at(key)) : std::optional< T >{ };
+}
+
 static auto
 make_filtering_istream(const options_t &opts, const dict_t &dict)
 {
@@ -140,6 +147,19 @@ make_filtering_istream(const options_t &opts, const dict_t &dict)
     if (opts.have("deflate") && dict.has("/Filter")) {
         for (auto &filter : example::to_array< name_t >(dict.at("/Filter"))) {
             if (filter == "/FlateDecode") {
+                if (dict.has("/DecodeParms")) {
+                    const auto &xs = as< dict_t >(dict.at("/DecodeParms"));
+
+                    auto pred = as< int >(xs.at("/Predictor"));
+                    assert(10 <= pred && pred <= 15);
+
+                    size_t ppl = maybe< int >(xs, "/Columns").value_or(1);
+                    size_t cpp = maybe< int >(xs, "/Colors").value_or(1);
+                    size_t bpc = maybe< int >(xs, "/BitsPerComponent").value_or(8);
+
+                    ptr->push(io_::png_predictor_input_filter_t(ppl, cpp, bpc));
+                }
+
                 ptr->push(io::zlib_decompressor());
             } else if (filter == "/ASCII85Decode") {
                 ptr->push(io_::ascii85_input_filter_t());

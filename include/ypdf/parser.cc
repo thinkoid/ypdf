@@ -31,7 +31,7 @@ bool parse(Iterator first, Iterator &iter, Iterator last,
     for (auto start = iter; iter != last; start = iter) {
         std::vector< ast::xref_t > section;
 
-        if (!parse_xrefs_section(first, iter, last, section))
+        if (!xrefs_section(first, iter, last, section))
             return expected(first, start, iter, last, "xref section"), false;
 
         table.insert(table.end(), section.begin(), section.end());

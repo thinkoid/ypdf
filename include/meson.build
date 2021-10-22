@@ -67,5 +67,7 @@ install_headers(
     'ypdf/stream/asciihex_output_filter.hh',
     'ypdf/stream/lzw_filter_base.hh',
     'ypdf/stream/lzw_input_filter.hh',
-    'ypdf/stream/lzw_output_filter.hh')
+    'ypdf/stream/lzw_output_filter.hh',
+    'ypdf/stream/png_predictor_input_filter.hh'
+    )
 

@@ -158,10 +158,10 @@ inline auto xrefstm_block(::boost::iostreams::filtering_istream &stream,
 
         case 2:
             ASSERT(b);
-            ASSERT(c);
-
             y = xrefstm_get(stream, b);
-            z = xrefstm_get(stream, c);
+
+            if (c)
+                z = xrefstm_get(stream, c);
 
             xrefs_.emplace_back(
                 ast::stream_xref_t{ { i, 0 }, { y, 0 }, size_t(z) });

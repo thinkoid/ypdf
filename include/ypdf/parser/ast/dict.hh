@@ -34,8 +34,13 @@ struct dict_t : std::vector< std::tuple< name_t, obj_t > >
     bool has(const char *) const;
     bool has(const name_t &) const;
 
+    obj_t &operator[](const char *);
+
     obj_t &operator[](name_t &&);
     obj_t &operator[](const name_t &);
+
+    obj_t &at(const char *);
+    const obj_t &at(const char *) const;
 
     obj_t &      at(const name_t &);
     const obj_t &at(const name_t &) const;

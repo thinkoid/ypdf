@@ -84,3 +84,5 @@ stamp-h1
 /tests/obj
 /tests/ascii*put_test
 /examples/ypdf
+/examples/iobjs
+/examples/xrefs
