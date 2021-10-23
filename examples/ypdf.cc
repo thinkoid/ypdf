@@ -19,6 +19,7 @@ namespace fs = std::filesystem;
 #include <boost/iostreams/device/mapped_file.hpp>
 namespace io = ::boost::iostreams;
 
+#include <range/v3/algorithm/for_each.hpp>
 #include <range/v3/view/any_view.hpp>
 #include <range/v3/view/drop.hpp>
 #include <range/v3/view/filter.hpp>
@@ -65,20 +66,6 @@ options_t::options_t(int argc, char **argv)
 }
 
 ////////////////////////////////////////////////////////////////////////
-
-static std::vector< iobj_t >
-iobjs_from(const std::string &filename)
-{
-    ::io::mapped_file_source f(filename.c_str());
-    auto iter = f.data();
-
-    std::vector< iobj_t > iobjs;
-
-    if (!ypdf::parse(iter, iter, iter + f.size(), iobjs))
-        throw std::runtime_error("parse failed");
-
-    return iobjs;
-}
 
 namespace example {
 
@@ -252,15 +239,65 @@ void run_with_ref_filter(const options_t &opts, Xs &&xs)
     }
 }
 
-static void run_with(const options_t &opts)
+static std::vector< iobj_t >
+iobjs_from(const std::string &filename)
 {
-    auto iobjs = iobjs_from(opts["input"].as< std::string >());
+    ::io::mapped_file_source f(filename.c_str());
+    auto iter = f.data();
 
+    std::vector< iobj_t > iobjs;
+
+    if (!ypdf::parse(iter, iter, iter + f.size(), iobjs))
+        throw std::runtime_error("malformed document");
+
+    return iobjs;
+}
+
+template< typename Xs >
+void run_with_type_filter(const options_t &opts, Xs &&xs)
+{
     if (opts.have("type")) {
         auto what = opts["type"].as< std::string >();
-        run_with_ref_filter(opts, iobjs | by_type(what));
+        run_with_ref_filter(opts, xs | by_type(what));
     } else {
-        run_with_ref_filter(opts, iobjs);
+        run_with_ref_filter(opts, xs);
+    }
+}
+
+static void run_with_iobjs_from(const options_t &opts)
+{
+    run_with_type_filter(opts, iobjs_from(opts["input"].as< std::string >()));
+}
+
+static std::vector< xref_t >
+xrefs_from(const std::string &filename)
+{
+    ::io::mapped_file_source f(filename.c_str());
+    auto iter = f.data();
+
+    std::vector< xref_t > xrefs;
+
+    if (!ypdf::parse(iter, iter, iter + f.size(), xrefs))
+        throw std::runtime_error("malformed catalog");
+
+    return xrefs;
+}
+
+static void run_with_catalog_from(const options_t &opts)
+{
+    auto xs = xrefs_from(opts["input"].as< std::string >());
+
+    for (const auto &x : xs) {
+        std::cout << " --> " << x.ref() << std::endl;
+    }
+}
+
+static void run_with(const options_t &opts)
+{
+    try {
+        run_with_catalog_from(opts);
+    } catch(...) {
+        run_with_iobjs_from(opts);
     }
 }
 
@@ -294,6 +331,5 @@ int main(int argc, char **argv)
         return run_with(global_options()), 0;
     } catch (const std::exception &x) {
         std::cerr << x.what() << std::endl;
-        return 1;
     }
 }
