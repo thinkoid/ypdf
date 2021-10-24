@@ -12,6 +12,7 @@ using namespace ypdf::parser::ast;
 #include <filesystem>
 namespace fs = std::filesystem;
 
+#include <boost/iostreams/copy.hpp>
 #include <boost/iostreams/concepts.hpp>
 #include <boost/iostreams/stream.hpp>
 #include <boost/iostreams/filtering_stream.hpp>
@@ -194,11 +195,7 @@ void run_with(const options_t &opts, Xs &&xs)
                 const auto &stream = as< stream_t >(arr[1]);
                 in->push(io::array_source(stream.data(), stream.size()));
 
-                for (int c; EOF != (c = in->get()); ) {
-                    ASSERT(0 <= c && c <= 256);
-                    out->put(char(c));
-                }
-
+                io::copy(*in, *out);
                 out->flush();
             }
         } else {
