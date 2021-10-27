@@ -42,7 +42,8 @@ template< typename T > inline const T &as(const obj_t &arg)
 
 template< typename T > inline bool is(const obj_t &arg)
 {
-    return typeid(T) == arg.type();
+    using value_type = std::remove_const_t< std::remove_pointer_t< T > >;
+    return typeid(value_type) == arg.type();
 }
 
 } // namespace ypdf::parser::ast
