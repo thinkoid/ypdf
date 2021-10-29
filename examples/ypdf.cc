@@ -12,6 +12,7 @@ using namespace ypdf::parser::ast;
 #include <filesystem>
 namespace fs = std::filesystem;
 
+#include <boost/none.hpp>
 #include <boost/iostreams/copy.hpp>
 #include <boost/iostreams/concepts.hpp>
 #include <boost/iostreams/stream.hpp>
@@ -20,6 +21,7 @@ namespace fs = std::filesystem;
 #include <boost/iostreams/device/mapped_file.hpp>
 namespace io = ::boost::iostreams;
 
+#include <range/v3/algorithm/find_if.hpp>
 #include <range/v3/algorithm/for_each.hpp>
 #include <range/v3/view/any_view.hpp>
 #include <range/v3/view/drop.hpp>
@@ -27,6 +29,10 @@ namespace io = ::boost::iostreams;
 #include <range/v3/view/iota.hpp>
 #include <range/v3/view/zip.hpp>
 using namespace ranges;
+
+#include <boost/hana/functional/overload.hpp>
+#include <boost/hana/functional/partial.hpp>
+namespace hana = boost::hana;
 
 ////////////////////////////////////////////////////////////////////////
 
@@ -104,15 +110,17 @@ template< typename T > inline auto to_array(const obj_t &obj)
 
     std::vector< T > xs;
 
-    if (is< array_t >(obj)) {
-        copy(as< array_t >(obj) | views::transform([](auto &x) {
-            return as< T >(x);
-        }), ranges::back_inserter(xs));
-    } else if (is< T >(obj)) {
-        xs.push_back(as< T >(obj));
-    } else {
-        ASSERT(0);
-    }
+    const auto visitor = hana::overload(
+        [&](const array_t &x) {
+            copy(as< array_t >(obj) | views::transform([](auto &x) {
+                return as< T >(x);
+            }), ranges::back_inserter(xs));
+        },
+        [&](const T &x) { xs.push_back(as< T >(obj)); },
+        [&](const auto &)  { ASSERT(0); }
+        );
+
+    boost::apply_visitor(visitor, obj);
 
     return xs;
 };
@@ -120,9 +128,13 @@ template< typename T > inline auto to_array(const obj_t &obj)
 } // namespace example
 
 template< typename T >
-inline std::optional< T > maybe(const dict_t &xs, const char *key)
+inline std::optional< T > maybe_at(const dict_t &xs, const char *key)
 {
-    return xs.has(key) ? as< T >(xs.at(key)) : std::optional< T >{ };
+    try {
+        return as< T >(xs.at(key));
+    } catch(...) {
+        return std::optional< T >{ };
+    }
 }
 
 static auto
@@ -141,9 +153,9 @@ make_filtering_istream(const options_t &opts, const dict_t &dict)
                     auto pred = as< int >(xs.at("/Predictor"));
                     assert(10 <= pred && pred <= 15);
 
-                    size_t ppl = maybe< int >(xs, "/Columns").value_or(1);
-                    size_t cpp = maybe< int >(xs, "/Colors").value_or(1);
-                    size_t bpc = maybe< int >(xs, "/BitsPerComponent").value_or(8);
+                    size_t ppl = maybe_at< int >(xs, "/Columns").value_or(1);
+                    size_t cpp = maybe_at< int >(xs, "/Colors").value_or(1);
+                    size_t bpc = maybe_at< int >(xs, "/BitsPerComponent").value_or(8);
 
                     ptr->push(io_::png_predictor_input_filter_t(ppl, cpp, bpc));
                 }
@@ -179,6 +191,10 @@ void run_with(const options_t &opts, Xs &&xs)
 {
     auto out = make_filtering_ostream(opts);
 
+    auto copy = [](auto &&src, auto &&dst) {
+        for (int c; EOF != (c = src.get()); dst.put(char(c))) { }
+    };
+
     for (const auto &x : xs) {
         std::cout << x.xref.ref() << std::endl;
 
@@ -195,7 +211,7 @@ void run_with(const options_t &opts, Xs &&xs)
                 const auto &stream = as< stream_t >(arr[1]);
                 in->push(io::array_source(stream.data(), stream.size()));
 
-                io::copy(*in, *out);
+                copy(*in, *out);
                 out->flush();
             }
         } else {
@@ -206,95 +222,68 @@ void run_with(const options_t &opts, Xs &&xs)
     }
 }
 
-static inline auto dict_of(const auto &iobj)
-{
-    return as< dict_t >(as< array_t >(iobj.obj)[0]);
-};
-
 static auto by_type(name_t what) {
     return views::filter([=](const iobj_t &iobj) {
-        const auto &dict = dict_of(iobj);
-        return dict.has("/Type") && what == as< name_t >(dict.at("/Type"));
+        try {
+            const auto &dict = as< dict_t >(as< array_t >(iobj.obj)[0]);
+            return what == as< name_t >(dict.at("/Type"));
+        } catch(...) {
+            return false;
+        }
     });
 };
+
+template< typename Xs >
+void run_with_type_filter(const options_t &opts, Xs &&xs)
+{
+    run_with(opts, xs | by_type(opts["type"].as< std::string >()));
+}
 
 static inline auto by_ref(int what)
 {
     return views::filter([=](const iobj_t &iobj) {
-        const auto &xref = as< basic_xref_t >(iobj.xref);
-        return xref.ref.num == what;
+        return as< basic_xref_t >(iobj.xref).ref.num == what;
     });
 };
 
 template< typename Xs >
 void run_with_ref_filter(const options_t &opts, Xs &&xs)
 {
-    if (opts.have("ref")) {
-        run_with(opts, xs | by_ref(opts["ref"].as< int >()));
+    auto ys = xs | by_ref(opts["ref"].as< int >());
+
+    if (opts.have("type")) {
+        run_with_type_filter(opts, ys);
     } else {
-        run_with(opts, xs);
+        run_with(opts, ys);
     }
 }
 
 static std::vector< iobj_t >
 iobjs_from(const std::string &filename)
 {
-    ::io::mapped_file_source f(filename.c_str());
-    auto iter = f.data();
+    io::mapped_file_source src(filename.c_str());
+
+    auto iter = src.data(), end = iter;
+    std::advance(end, src.size());
 
     std::vector< iobj_t > iobjs;
 
-    if (!ypdf::parse(iter, iter, iter + f.size(), iobjs))
+    if (!ypdf::parse(iter, iter, end, iobjs))
         throw std::runtime_error("malformed document");
 
     return iobjs;
 }
 
-template< typename Xs >
-void run_with_type_filter(const options_t &opts, Xs &&xs)
-{
-    if (opts.have("type")) {
-        auto what = opts["type"].as< std::string >();
-        run_with_ref_filter(opts, xs | by_type(what));
-    } else {
-        run_with_ref_filter(opts, xs);
-    }
-}
-
 static void run_with_iobjs_from(const options_t &opts)
 {
-    run_with_type_filter(opts, iobjs_from(opts["input"].as< std::string >()));
-}
+    auto xs = iobjs_from(opts["input"].as< std::string >());
 
-static std::vector< xref_t >
-xrefs_from(const std::string &filename)
-{
-    ::io::mapped_file_source f(filename.c_str());
-    auto iter = f.data();
-
-    std::vector< xref_t > xrefs;
-
-    if (!ypdf::parse(iter, iter, iter + f.size(), xrefs))
-        throw std::runtime_error("malformed catalog");
-
-    return xrefs;
-}
-
-static void run_with_catalog_from(const options_t &opts)
-{
-    auto xs = xrefs_from(opts["input"].as< std::string >());
-
-    for (const auto &x : xs) {
-        std::cout << " --> " << x.ref() << std::endl;
-    }
-}
-
-static void run_with(const options_t &opts)
-{
-    try {
-        run_with_catalog_from(opts);
-    } catch(...) {
-        run_with_iobjs_from(opts);
+    if (opts.have("ref")) {
+        run_with_ref_filter(opts, xs);
+    } else if (opts.have("type")) {
+        run_with_type_filter(opts, xs);
+    } else {
+        run_with(opts, xs);
     }
 }
 
@@ -325,8 +314,11 @@ int main(int argc, char **argv)
     program_options_from(argc, argv);
 
     try {
-        return run_with(global_options()), 0;
+        run_with_iobjs_from(global_options());
     } catch (const std::exception &x) {
         std::cerr << x.what() << std::endl;
+        return 1;
     }
+
+    return 0;
 }
