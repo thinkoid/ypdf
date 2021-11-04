@@ -1,10 +1,4 @@
-ypdf_sources = [
-    'character.cc',
-    'dict.cc',
-    'obj.cc']
-
-ypdflib = library('ypdf',
-                  ypdf_sources,
-                  include_directories : inc,
-                  dependencies : boost_dep,
-                  install : true)
+libypdf = static_library(
+    'ypdf', [ 'character.cc', 'dict.cc', 'obj.cc'],
+    include_directories : includes,
+    install : true)

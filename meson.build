@@ -1,16 +1,13 @@
 project('ypdf', 'cpp', version : '0.0.1', license : 'GPL',
-        default_options : ['cpp_std=c++20', 'build.cpp_std=c++20'])
+        default_options : [ 'cpp_std=c++20' ])
 
-boost_dep = dependency('boost', modules : [
-    'filesystem',
-    'iostreams',
-    'program_options',
-    'system'
-])
+includes = include_directories('include')
 
-test_dep = dependency('boost', modules : ['unit_test_framework'])
+boost_deps = dependency('boost', modules : [
+    'filesystem', 'iostreams', 'system', 'program_options', 'unit_test_framework' ])
 
-inc = include_directories('include')
+libjpeg_dep = dependency('libjpeg')
+libturbojpeg_dep = dependency('libturbojpeg')
 
 subdir('include')
 subdir('src')
@@ -18,8 +15,8 @@ subdir('examples')
 subdir('tests')
 
 pkg_mod = import('pkgconfig')
-pkg_mod.generate(libraries : ypdflib,
+pkg_mod.generate(libraries : libypdf,
                  version : '0.0.1',
                  name : 'libypdf',
                  filebase : 'ypdf',
-                 description : 'A PDF library.')
+                 description : 'Y another PDF library.')
