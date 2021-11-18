@@ -122,7 +122,7 @@ static auto make_filtering_istream(const dict_t &dict)
             } else if (filter == "/LZWDecode") {
                 ptr->push(io_::lzw_input_filter_t());
             } else if (filter == "/DCTDecode") {
-                // ignore
+                ptr->push(io_::dct_input_filter_t());
             } else {
                 throw std::runtime_error("unsupported filter");
             }

@@ -165,6 +165,8 @@ make_filtering_istream(const options_t &opts, const dict_t &dict)
                 ptr->push(io_::ascii85_input_filter_t());
             } else if (filter == "/LZWDecode") {
                 ptr->push(io_::lzw_input_filter_t());
+            } else if (filter == "/DCTDecode") {
+                ptr->push(io_::dct_input_filter_t());
             } else {
                 throw std::runtime_error("unsupported filter");
             }
