@@ -5,6 +5,7 @@
 #define YPDF_PARSER_TRAILER_HH
 
 #include <ypdf/detail/defs.hh>
+#include <ypdf/parser/ast/dict.hh>
 
 #include <map>
 

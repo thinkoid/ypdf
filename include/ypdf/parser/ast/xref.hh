@@ -11,7 +11,8 @@
 
 #include <boost/variant.hpp>
 
-namespace ypdf::parser::ast {
+namespace ypdf::parser {
+namespace ast {
 
 struct free_xref_t
 {
@@ -87,6 +88,26 @@ inline bool operator!=(const xref_t &lhs, const xref_t &rhs)
     return !(lhs == rhs);
 }
 
+inline bool operator==(const xref_t &lhs, const ref_t &rhs)
+{
+    return lhs.ref() == rhs;
+}
+
+inline bool operator!=(const xref_t &lhs, const ref_t &rhs)
+{
+    return !(lhs == rhs);
+}
+
+inline bool operator==(const ref_t &lhs, const xref_t &rhs)
+{
+    return lhs == rhs.ref();
+}
+
+inline bool operator!=(const ref_t &lhs, const xref_t &rhs)
+{
+    return !(lhs == rhs);
+}
+
 template< typename T > inline const T &as(const xref_t &arg)
 {
     return boost::get< T >(arg);
@@ -98,6 +119,7 @@ template< typename T > inline bool is(const xref_t &arg)
     return typeid(value_type) == arg.type();
 }
 
-} // namespace ypdf::parser::ast
+} // namespace ast
+} // namespace ypdf::parser
 
 #endif // YPDF_PARSER_AST_XREF_HH

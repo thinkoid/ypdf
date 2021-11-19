@@ -5,7 +5,7 @@
 #define YPDF_PARSER_OBJ_HH
 
 #include <ypdf/detail/defs.hh>
-#include <ypdf/parser/ast.hh>
+#include <ypdf/parser/ast/obj.hh>
 
 namespace ypdf::parser {
 

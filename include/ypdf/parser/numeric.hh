@@ -5,6 +5,7 @@
 #define YPDF_PARSER_NUMERIC_HH
 
 #include <ypdf/detail/defs.hh>
+#include <type_traits>
 
 namespace ypdf::parser {
 

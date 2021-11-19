@@ -5,6 +5,7 @@
 #define YPDF_PARSER_XREFTBL_HH
 
 #include <ypdf/detail/defs.hh>
+#include <ypdf/parser/ast/xref.hh>
 
 #include <vector>
 

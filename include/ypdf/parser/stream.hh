@@ -5,6 +5,7 @@
 #define YPDF_PARSER_STREAM_HH
 
 #include <ypdf/detail/defs.hh>
+#include <ypdf/parser/ast/stream.hh>
 
 namespace ypdf::parser {
 

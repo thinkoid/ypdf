@@ -10,7 +10,6 @@
 #include <ypdf/parser.hh>
 #include <ypdf/stream.hh>
 
-namespace ypdf {
-}
+namespace ypdf { }
 
 #endif // YPDF_YPDF_HH

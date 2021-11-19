@@ -2,7 +2,6 @@
 // Copyright 2020 Thinkoid, LLC
 
 #include <ypdf/detail/defs.hh>
-
 #include <ypdf/parser.hh>
 
 #include <vector>

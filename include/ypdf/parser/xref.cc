@@ -5,9 +5,8 @@
 #include <ypdf/parser/lit.hh>
 #include <ypdf/parser/numeric.hh>
 #include <ypdf/parser/skip.hh>
-#include <ypdf/parser/skip.hh>
-#include <ypdf/parser/xreftbl.hh>
 #include <ypdf/parser/xrefstm.hh>
+#include <ypdf/parser/xreftbl.hh>
 
 namespace ypdf::parser {
 namespace detail {

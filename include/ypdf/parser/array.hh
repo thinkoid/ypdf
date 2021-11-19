@@ -5,6 +5,7 @@
 #define YPDF_PARSER_ARRAY_HH
 
 #include <ypdf/detail/defs.hh>
+#include <ypdf/parser/ast/array.hh>
 
 namespace ypdf::parser {
 

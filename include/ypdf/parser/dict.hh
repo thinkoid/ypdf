@@ -5,16 +5,14 @@
 #define YPDF_PARSER_DICT_HH
 
 #include <ypdf/detail/defs.hh>
-#include <ypdf/parser/ast.hh>
+
+#include <ypdf/parser/ast/dict.hh>
+#include <ypdf/parser/ast/obj.hh>
 
 #include <string>
 #include <tuple>
 
 namespace ypdf::parser {
-
-namespace ast {
-struct obj_t;
-} // namespace ast
 
 template< typename Iterator >
 bool definition(Iterator, Iterator &, Iterator,

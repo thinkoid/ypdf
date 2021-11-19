@@ -6,6 +6,8 @@
 
 #include <ypdf/detail/defs.hh>
 
+#include <string>
+
 namespace ypdf::parser {
 
 template< typename Iterator >

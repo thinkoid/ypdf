@@ -40,12 +40,12 @@ inline std::ostream &operator<<(std::ostream &s, const free_xref_t &arg)
 
 inline std::ostream &operator<<(std::ostream &s, const basic_xref_t &arg)
 {
-    return s << arg.ref << " " << arg.off;
+    return s << arg.ref << " : " << arg.off;
 }
 
 inline std::ostream &operator<<(std::ostream &s, const stream_xref_t &arg)
 {
-    return s << arg.ref << " " << arg.stream << " " << arg.pos;
+    return s << arg.ref << ", " << arg.stream << " : " << arg.pos;
 }
 
 inline std::ostream &operator<<(std::ostream &s, const xref_t &arg)

@@ -2,6 +2,11 @@
 // Copyright 2020 Thinkoid, LLC
 
 #include <ypdf/parser/xrefstm.hh>
+
+#include <ypdf/parser/ast/name.hh>
+#include <ypdf/parser/ast/iobj.hh>
+#include <ypdf/parser/ast/obj.hh>
+
 #include <ypdf/stream.hh>
 
 #include <range/v3/algorithm/copy.hpp>
@@ -91,6 +96,8 @@ inline auto make_filtering_istream(const ast::dict_t &dict)
                 ptr->push(iostreams::ascii85_input_filter_t());
             } else if (filter == "/LZWDecode") {
                 ptr->push(iostreams::lzw_input_filter_t());
+            } else if (filter == "/DCTDecode") {
+                ptr->push(iostreams::dct_input_filter_t());
             }
         }
     }

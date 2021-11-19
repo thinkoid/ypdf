@@ -4,10 +4,3 @@ ypdf_example = executable(
     link_with : libypdf,
     dependencies : [ boost_deps, libturbojpeg_dep, libjpeg_dep ],
     install : true)
-
-dct_example = executable(
-    'dct', ['dct.cc' ],
-    include_directories : includes,
-    link_with : libypdf,
-    dependencies : [ boost_deps, libturbojpeg_dep, libjpeg_dep ],
-    install : true)
