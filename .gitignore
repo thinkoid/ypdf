@@ -86,3 +86,5 @@ stamp-h1
 /examples/ypdf
 /examples/iobjs
 /examples/xrefs
+/.cache/
+/compile_commands.json

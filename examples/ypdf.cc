@@ -75,6 +75,98 @@ options_t::options_t(int argc, char **argv)
 
 ////////////////////////////////////////////////////////////////////////
 
+namespace example {
+
+struct asciihex_output_filter_t : public boost::iostreams::output_filter
+{
+    template< typename Sink >
+    bool put(Sink &dst, char c)
+    {
+        static const char *s = "0123456789ABCDEF";
+
+        if (eof_)
+            return false;
+
+        const auto u = static_cast< unsigned char >(c);
+
+        return
+            ::io::put(dst, s[(u & 0xF0) >> 4]) &&
+            ::io::put(dst, s[ u & 0x0F]) &&
+            ::io::put(dst, ' ');
+    }
+
+    template< typename Sink >
+    void close(Sink &dst)
+    {
+        eof_ = true;
+    }
+
+private:
+    bool eof_ = false;
+};
+
+template< typename T > inline auto to_array(const ast::obj_t &obj)
+{
+    using namespace ranges;
+
+    std::vector< T > xs;
+
+    if (is< ast::array_t >(obj)) {
+        auto rng = as< ast::array_t >(obj)
+            | views::transform([](auto &x) { return as< T >(x); });
+        copy(rng, ranges::back_inserter(xs));
+    } else if (is< T >(obj)) {
+        xs.push_back(as< T >(obj));
+    } else {
+        ASSERT(0);
+    }
+
+    return xs;
+};
+
+} // namespace example
+
+static auto
+make_filtering_istream(const options_t &opts, const ast::dict_t &dict)
+{
+    namespace io_ = ypdf::iostreams;
+
+    auto ptr = std::make_unique< io::filtering_istream >();
+
+    if (opts.have("deflate") && dict.has("/Filter")) {
+        for (auto &filter : example::to_array< ast::name_t >(dict.at("/Filter"))) {
+            if (filter == "/FlateDecode") {
+                ptr->push(io::zlib_decompressor());
+            } else if (filter == "/ASCII85Decode") {
+                ptr->push(io_::ascii85_input_filter_t());
+            } else if (filter == "/LZWDecode") {
+                ptr->push(io_::lzw_input_filter_t());
+            } else if (filter == "/DCTDecode") {
+                ptr->push(io_::dct_input_filter_t());
+            } else {
+                throw std::runtime_error("unsupported filter");
+            }
+        }
+    }
+
+    return ptr;
+}
+
+static auto
+make_filtering_ostream(const options_t &opts)
+{
+    auto ptr = std::make_unique< io::filtering_ostream >();
+
+    if (opts.have("hex"))
+        ptr->push(example::asciihex_output_filter_t());
+
+    ptr->push(boost::ref(std::cout));
+
+    return ptr;
+}
+
+////////////////////////////////////////////////////////////////////////
+
 struct ctx_t
 {
     explicit ctx_t(const fs::path &path)
@@ -149,19 +241,53 @@ bool parse(Iterator first, Iterator &iter, Iterator last,
     return false;
 }
 
-std::optional< ast::dict_t >
-maybe_dict_from(const ast::basic_xref_t &xref, ctx_t &ctx)
+template< typename Xs >
+inline void do_run_with(const options_t &opts, Xs &&xs)
 {
+    auto out = make_filtering_ostream(opts);
+
+    for (const auto &x : xs) {
+        std::cout << x.xref;
+
+        const auto &arr = as< ast::array_t >(x.obj);
+        ASSERT(arr.size());
+
+        const auto &dict = as< ast::dict_t >(arr[0]);
+        std::cout << dict << std::endl;
+
+        if (1 < arr.size()) {
+            auto in = make_filtering_istream(opts, dict);
+
+            const auto &stream = as< ast::stream_t >(arr[1]);
+            in->push(io::array_source(stream.data(), stream.size()));
+
+            for (int c; EOF != (c = in->get()); ) {
+                ASSERT(0 <= c && c <= 256);
+                out->put(char(c));
+            }
+
+            out->flush();
+        }
+
+        std::cout << std::endl;
+    }
+}
+
+ast::iobj_t
+fetch(const ast::basic_xref_t &xref, ctx_t &ctx)
+{
+    using ypdf::parser::iobj;
+    
     auto first = ctx.source()->data();
     std::advance(first, xref.off);
 
     auto iter = first, end = first;
     std::advance(end, ctx.source()->size());
     
-    ast::dict_t dict;
+    ast::iobj_t x;
 
-    if (parse(first, iter, end, dict))
-        return dict;
+    if (iobj(first, iter, end, x))
+        return x;
 
     return { };
 }
@@ -176,26 +302,40 @@ find(const std::vector< ast::xref_t > &xs, const ast::ref_t &ref)
     return iter == end(xs) ? nullptr : &as< ast::basic_xref_t >(*iter);
 }
 
-static std::optional< ast::dict_t >
-maybe_dict_from(const ast::stream_xref_t &xref, ctx_t &ctx)
+static ast::iobj_t
+fetch(const ast::stream_xref_t &xref, ctx_t &ctx)
 {
     if (auto ptr = ::find(ctx.catalog(), xref.stream)) {
-        return maybe_dict_from(*ptr, ctx);
+        return fetch(*ptr, ctx);
     }
 
     return { };
 }
 
-static std::optional< ast::dict_t >
-maybe_dict_from(const ast::xref_t &xref, ctx_t &ctx)
+static ast::iobj_t
+fetch(const ast::xref_t &xref, ctx_t &ctx)
 {
-    using result_type = std::optional< ast::dict_t >;
+    using result_type = ast::iobj_t;
 
     auto visitor = hana::overload(
         [&](const ast::free_xref_t &) { return result_type{ }; },
-        [&](const auto &arg) { return maybe_dict_from(arg, ctx); });
+        [&](const auto &arg) { return fetch(arg, ctx); });
 
     return boost::apply_visitor(visitor, xref);
+}
+
+static const ast::dict_t *
+dict_of(const ast::iobj_t &iobj)
+{
+    if (is< ast::array_t >(iobj.obj)) {
+        auto &arr = as< ast::array_t >(iobj.obj);
+
+        if (arr.size() > 1) {
+            return &as< ast::dict_t >(arr[0]);
+        }
+    }
+
+    return nullptr;
 }
 
 auto by_ref = [](int arg) {
@@ -203,30 +343,11 @@ auto by_ref = [](int arg) {
 };
 
 auto by_type = [](std::string arg) {
-    return [type = std::move(arg)](const auto &arg) {
-        const auto &[ref, opt] = arg;
-
-        if (opt) {
-            auto &dict = opt.value();
-            return dict.has("/Type") && ast::as< ast::name_t >(dict.at("/Type")) == type;
-        }
-
-        return false;
+    return [type = std::move(arg)](const ast::iobj_t &iobj) {
+        const ast::dict_t *p = dict_of(iobj);            
+        return p && p->has("/Type") && ast::as< ast::name_t >(p->at("/Type")) == type;
     };
 };
-
-template< typename Xs >
-inline void do_run_with(Xs &&xs)
-{
-    for (const auto &[xref, opt] : xs) {
-        std::cout << xref;
-
-        if (opt)
-            std::cout << " : " << opt.value();
-
-        std::cout << std::endl;
-    }
-}
 
 static void run_with(const options_t &opts)
 {
@@ -235,26 +356,24 @@ static void run_with(const options_t &opts)
     auto xs = ctx.xrefs() | views::filter(
         [](const auto &arg) { return !ast::is< ast::free_xref_t >(arg); });
 
-    auto to_tuple = [&](const ast::xref_t &xref) {
-        return std::make_tuple(xref.ref(), maybe_dict_from(xref, ctx));
-    };
+    auto resolve = [&](const ast::xref_t &xref) { return fetch(xref, ctx); };
 
     if (opts.have("ref")) {
         auto xs0 = xs
             | views::filter(by_ref(opts["ref"].as< int >()))
-            | views::transform(to_tuple);
+            | views::transform(resolve);
         
         if (opts.have("type")) {
-            do_run_with(xs0 | views::filter(by_type(opts["type"].as< std::string >())));
+            do_run_with(opts, xs0 | views::filter(by_type(opts["type"].as< std::string >())));
         } else {
-            do_run_with(xs0);
+            do_run_with(opts, xs0);
         }
     } else if (opts.have("type")) {
-        do_run_with(xs
-            | views::transform(to_tuple)
+        do_run_with(opts, xs
+            | views::transform(resolve)
             | views::filter(by_type(opts["type"].as< std::string >())));
     } else {
-        do_run_with(xs | views::transform(to_tuple));
+        do_run_with(opts, xs | views::transform(resolve));
     }    
 }
 

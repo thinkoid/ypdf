@@ -98,6 +98,8 @@ inline auto make_filtering_istream(const ast::dict_t &dict)
                 ptr->push(iostreams::lzw_input_filter_t());
             } else if (filter == "/DCTDecode") {
                 ptr->push(iostreams::dct_input_filter_t());
+            } else {
+                throw std::runtime_error("unsupported filter");
             }
         }
     }
@@ -226,6 +228,7 @@ bool xrefstm(Iterator first, Iterator &iter, Iterator last,
     const auto &dict = as< ast::dict_t >(iobj_.obj[0]);
     const auto &stm = as< ast::stream_t >(iobj_.obj[1]);
 
+    // TODO: the catalog is missing this cross-reference stream's reference
     attr = detail::xrefstm_xrefs(dict, stm);
 
     if (dict.has("/Prev")) {
